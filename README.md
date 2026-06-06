@@ -229,3 +229,67 @@ output:
 ## License
 
 MIT License
+
+---
+
+## 开发日志与 PR 记录
+
+本项目遵循 **"每个 PR 只做一件事"** 的开发规范，保持持续、细粒度的提交记录。
+
+### 开发周期概览
+
+| 指标 | 数值 |
+|------|------|
+| 总 PR 数 | 10 个 |
+| 总 Commit 数 | 21 个 |
+| 测试用例数 | 13 个单元测试 |
+| 代码总行数 | ~6,900 行 |
+
+### PR 列表
+
+| PR | 标题 | 类型 | 文件数 | 测试方式 |
+|---|------|------|--------|---------|
+| #01 | [feat] 定义剧本YAML Schema数据模型 | 功能 | 3 | 模型导入验证 |
+| #02 | [feat] 实现小说文本解析器（NovelParser） | 功能 | 2 | `python tests/test_parser.py` |
+| #03 | [feat] 实现小说内容分析器（NovelAnalyzer） | 功能 | 2 | `python tests/test_analyzer.py` |
+| #04 | [feat] 实现YAML格式化输出器（YAMLFormatter） | 功能 | 1 | 集成测试 |
+| #05 | [feat] 实现本地规则剧本转换器（LocalConverter） | 功能 | 1 | `python main.py --local` |
+| #06 | [feat] 实现AI剧本转换引擎（ScriptConverter） | 功能 | 1 | API调用测试 |
+| #07 | [feat] 实现CLI命令行工具与项目配置 | 功能 | 4 | `python main.py --help` |
+| #08 | [feat] 添加Web可视化操作界面 | 功能 | 2 | `python web_app.py` |
+| #09 | [docs] 添加项目文档、示例小说与.gitignore | 文档 | 3 | 阅读验证 |
+| #10 | [fix] 代码审查修复与项目优化 | 修复 | 1 | 安全+功能测试 |
+
+### Commit 规范
+
+```
+<type>: <subject>
+
+- 改动点1
+- 改动点2
+
+测试方式：xxx
+```
+
+| Type | 含义 |
+|------|------|
+| `feat` | 新功能 |
+| `fix` | Bug修复 |
+| `docs` | 文档 |
+| `test` | 测试 |
+| `refactor` | 重构 |
+
+### 开发工作流
+
+```
+feature/pr-XX-功能名称
+    → 开发测试 → commit → PR → Review → Merge main → 验证
+```
+
+### 质量保证
+
+- ✅ 每个 PR 合并前通过单元测试
+- ✅ 每个 PR 只做一件事，小粒度提交
+- ✅ 主分支始终保持可运行状态
+- ✅ Commit message 清晰描述改动和测试方式
+
