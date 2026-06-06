@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 小说转剧本工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #8892b0;
+            font-size: 1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(233, 69, 96, 0.4);
+            border-radius: 12px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(233, 69, 96, 0.03);
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.08);
+        }
+
+        .upload-area .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            color: #e94560;
+        }
+
+        .upload-area p {
+            color: #8892b0;
+            font-size: 0.95rem;
+        }
+
+        .upload-area .filename {
+            color: #e94560;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        input[type="file"] { display: none; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #8892b0;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #e94560;
+        }
+
+        .form-group input::placeholder {
+            color: #555;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #c23a51);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e94560;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #8892b0;
+            margin-top: 4px;
+        }
+
+        .yaml-preview {
+            background: #0d1117;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #c9d1d9;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .yaml-preview .key { color: #7ee787; }
+        .yaml-preview .string { color: #a5d6ff; }
+        .yaml-preview .number { color: #79c0ff; }
+        .yaml-preview .comment { color: #8b949e; }
+
+        .hidden { display: none !important; }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .tag-main { background: rgba(233, 69, 96, 0.2); color: #e94560; }
+        .tag-supporting { background: rgba(121, 192, 255, 0.2); color: #79c0ff; }
+        .tag-minor { background: rgba(139, 148, 158, 0.2); color: #8b949e; }
+
+        .footer {
+            text-align: center;
+            color: #555;
+            font-size: 0.8rem;
+            margin-top: 40px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background: rgba(233, 69, 96, 0.15);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            color: #e94560;
+        }
+
+        .alert-info {
+            background: rgba(121, 192, 255, 0.15);
+            border: 1px solid rgba(121, 192, 255, 0.3);
+            color: #79c0ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI 小说转剧本工具</h1>
+            <p>将小说文本自动转换为结构化剧本（YAML 格式）</p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">1. 上传小说文件</div>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="icon">&#128196;</div>
+                <p>点击选择或拖拽文件到此处</p>
+                <p style="font-size:0.8rem; margin-top:4px;">支持 .txt 格式，建议 3 章以上</p>
+                <div class="filename hidden" id="filename"></div>
+            </div>
+            <input type="file" id="fileInput" accept=".txt,.md">
+        </div>
+
+        <div class="card">
+            <div class="card-title">2. 配置选项</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>小说标题</label>
+                    <input type="text" id="title" placeholder="自动检测">
+                </div>
+                <div class="form-group">
+                    <label>作者</label>
+                    <input type="text" id="author" placeholder="自动检测">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>转换模式</label>
+                    <select id="mode">
+                        <option value="local">本地模式（无需API，快速转换）</option>
+                        <option value="ai" disabled title="请在服务器配置 API 密钥后使用">AI模式（需要Claude API密钥，质量更高）</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="analyzeBtn" onclick="analyzeFile()" disabled>
+                    <span>&#128269;</span> 仅分析结构
+                </button>
+                <button class="btn btn-primary" id="convertBtn" onclick="convertFile()" disabled>
+                    <span id="convertSpinner" class="loading hidden"></span>
+                    <span id="convertText">开始转换</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="analyzeResult" class="hidden">
+            <div class="card">
+                <div class="card-title">&#128202; 小说分析结果</div>
+                <div class="stats-grid" id="analyzeStats"></div>
+                <div id="analyzeDetails"></div>
+            </div>
+        </div>
+
+        <div id="convertResult" class="hidden">
+            <div class="card">
+                <div class="card-title">&#127912; 转换结果</div>
+                <div class="stats-grid" id="convertStats"></div>
+                <div class="btn-group" style="margin-bottom:16px;">
+                    <button class="btn btn-primary" onclick="downloadFile()">&#11015; 下载 YAML</button>
+                </div>
+                <div class="yaml-preview" id="yamlPreview"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            AI 小说转剧本工具 v1.0 | YAML Schema v1.0
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const filename = document.getElementById('filename');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const convertBtn = document.getElementById('convertBtn');
+        let currentFile = null;
+        let downloadUrl = '';
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                currentFile = e.target.files[0];
+                filename.textContent = currentFile.name;
+                filename.classList.remove('hidden');
+                analyzeBtn.disabled = false;
+                convertBtn.disabled = false;
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                currentFile = files[0];
+                filename.textContent = currentFile.name;
+                filename.classList.remove('hidden');
+                analyzeBtn.disabled = false;
+                convertBtn.disabled = false;
+            }
+        });
+
+        function showAlert(message, type) {
+            const div = document.createElement('div');
+            div.className = `alert alert-${type}`;
+            div.textContent = message;
+            document.querySelector('.container').insertBefore(div, document.querySelector('.container').children[1]);
+            setTimeout(() => div.remove(), 4000);
+        }
+
+        async function analyzeFile() {
+            if (!currentFile) return;
+            analyzeBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            try {
+                const res = await fetch('/api/analyze', { method: 'POST', body: formData });
+                const data = await res.json();
+                analyzeBtn.disabled = false;
+
+                if (data.error) {
+                    showAlert(data.error, 'error');
+                    return;
+                }
+
+                const stats = document.getElementById('analyzeStats');
+                stats.innerHTML = `
+                    <div class="stat-card"><div class="stat-value">${data.chapters}</div><div class="stat-label">章节数</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.word_count}</div><div class="stat-label">总字数</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.characters.length}</div><div class="stat-label">角色数</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.locations.length}</div><div class="stat-label">地点数</div></div>
+                `;
+
+                const details = document.getElementById('analyzeDetails');
+                details.innerHTML = `
+                    <div style="margin-top:16px;">
+                        <div style="font-size:0.85rem;color:#8892b0;margin-bottom:8px;">主要角色</div>
+                        <div>${data.characters.map(c => `<span class="tag tag-${c.importance}">${c.name}</span>`).join('')}</div>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <div style="font-size:0.85rem;color:#8892b0;margin-bottom:8px;">主要地点</div>
+                        <div>${data.locations.map(l => `<span class="tag tag-minor">${l}</span>`).join('')}</div>
+                    </div>
+                `;
+
+                document.getElementById('analyzeResult').classList.remove('hidden');
+            } catch (err) {
+                analyzeBtn.disabled = false;
+                showAlert('分析失败: ' + err.message, 'error');
+            }
+        }
+
+        async function convertFile() {
+            if (!currentFile) return;
+
+            const mode = document.getElementById('mode').value;
+            if (mode === 'ai') {
+                showAlert('AI模式需要配置API密钥，请先使用本地模式', 'error');
+                document.getElementById('mode').value = 'local';
+                return;
+            }
+
+            convertBtn.disabled = true;
+            document.getElementById('convertSpinner').classList.remove('hidden');
+            document.getElementById('convertText').textContent = '转换中...';
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+            formData.append('title', document.getElementById('title').value);
+            formData.append('author', document.getElementById('author').value);
+            formData.append('mode', mode);
+
+            try {
+                const res = await fetch('/api/convert', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                convertBtn.disabled = false;
+                document.getElementById('convertSpinner').classList.add('hidden');
+                document.getElementById('convertText').textContent = '开始转换';
+
+                if (data.error) {
+                    showAlert(data.error, 'error');
+                    return;
+                }
+
+                const stats = document.getElementById('convertStats');
+                stats.innerHTML = `
+                    <div class="stat-card"><div class="stat-value">${data.stats.acts}</div><div class="stat-label">幕数</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.stats.scenes}</div><div class="stat-label">场景数</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.stats.characters}</div><div class="stat-label">角色数</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.stats.chapters}</div><div class="stat-label">原章节数</div></div>
+                `;
+
+                downloadUrl = data.download_url;
+                document.getElementById('yamlPreview').textContent = data.yaml;
+                document.getElementById('convertResult').classList.remove('hidden');
+
+                // Scroll to result
+                document.getElementById('convertResult').scrollIntoView({ behavior: 'smooth' });
+            } catch (err) {
+                convertBtn.disabled = false;
+                document.getElementById('convertSpinner').classList.add('hidden');
+                document.getElementById('convertText').textContent = '开始转换';
+                showAlert('转换失败: ' + err.message, 'error');
+            }
+        }
+
+        function downloadFile() {
+            if (downloadUrl) {
+                window.location.href = downloadUrl;
+            }
+        }
+    </script>
+</body>
+</html>

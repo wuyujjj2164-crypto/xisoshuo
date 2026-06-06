@@ -1,0 +1,363 @@
+"""
+AI 剧本转换引擎
+
+调用 Anthropic Claude API，将小说文本转换为结构化剧本。
+核心功能：场景分割、叙述转对白、动作提取、格式化输出。
+"""
+
+import json
+import os
+from typing import Any
+
+import yaml
+from anthropic import Anthropic
+
+from .models import Act, Character, Metadata, Scene, SceneElement, Screenplay
+
+
+CONVERSION_PROMPT = """你是一位资深编剧，擅长将小说改编为影视剧本。
+请将以下小说内容转换为结构化剧本格式。
+
+## 转换规则
+
+1. **场景标题格式**：内景/外景. 地点 - 时间
+   - 时间选项：黎明、晨、日、正午、下午、黄昏、晚、夜、深夜、连续
+
+2. **场景元素类型**：
+   - action: 动作描述/场景描写（无引号，第三人称）
+   - dialogue: 角色对白（需要 character 字段）
+   - parenthetical: 表演指示，附在对白下方括号中
+   - transition: 转场提示（如：切至、叠化、淡入/淡出）
+   - sound: 音效/音乐提示
+   - note: 编剧备注
+
+3. **对白转换原则**：
+   - 将小说中的直接引语转换为角色对白
+   - 将心理描写转换为动作或表情描述
+   - 将叙述性文字精简为场景动作
+   - 保留角色语言风格特征
+
+4. **场景分割原则**：
+   - 地点变化 = 新场景
+   - 时间跳跃 = 新场景
+   - 视角切换 = 可考虑新场景
+   - 每个场景聚焦一个戏剧目标
+
+5. **输出要求**：
+   - 以 YAML 格式输出
+   - 每个场景必须有 heading（场景标题）
+   - 每个对白元素必须有 character（角色名）
+   - 保持原有情节和对话内容，只做格式转换
+   - 将叙述转化为可视化的动作描述
+
+## 输入内容
+
+{input_content}
+
+## 角色参考
+
+{character_info}
+
+## 输出格式
+
+请严格按照以下 YAML 结构输出：
+
+```yaml
+acts:
+  - act_number: 1
+    title: "幕标题"
+    description: "幕内容简述"
+    scenes:
+      - scene_number: 1
+        heading: "内景. 地点 - 时间"
+        location: "地点"
+        time: "时间"
+        int_ext: "内景"
+        description: "场景简介"
+        mood: "氛围"
+        characters_present: ["角色A", "角色B"]
+        elements:
+          - type: action
+            content: "动作描述文本"
+          - type: dialogue
+            character: "角色A"
+            content: "对白内容"
+            parenthetical: "低声"
+          - type: transition
+            content: "切至："
+```
+
+只输出 YAML 内容，不要添加解释或 markdown 代码块标记之外的任何内容。
+"""
+
+BATCH_PROMPT = """你是一位资深编剧。请将以下小说章节转换为剧本场景。
+这是第 {batch_num}/{total_batches} 批章节。
+
+{chapters_content}
+
+角色参考：{characters}
+
+请输出 YAML 格式的场景列表（只输出 acts 下的内容，不需要最外层的 screenplay 包装）：
+
+```yaml
+acts:
+  - act_number: {act_number}
+    title: "..."
+    description: "..."
+    scenes:
+      - scene_number: ...
+        heading: "..."
+        ...
+```
+"""
+
+
+class ScriptConverter:
+    """
+    剧本转换引擎
+
+    使用 Claude API 将小说分析结果转换为结构化剧本。
+    支持分批处理长文本，避免超出 token 限制。
+    """
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        model: str = "claude-sonnet-4-6",
+        max_tokens: int = 4096,
+        temperature: float = 0.3,
+        chapters_per_batch: int = 3,
+    ):
+        """
+        初始化转换器
+
+        Args:
+            api_key: Anthropic API 密钥（默认从环境变量读取）
+            model: 使用的模型名称
+            max_tokens: 单次请求最大输出 token 数
+            temperature: 创造性程度 (0.0-1.0)
+            chapters_per_batch: 每批处理的章节数
+        """
+        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+        if not self.api_key:
+            raise ValueError(
+                "必须提供 API 密钥或通过 ANTHROPIC_API_KEY 环境变量设置"
+            )
+
+        self.client = Anthropic(api_key=self.api_key)
+        self.model = model
+        self.max_tokens = max_tokens
+        self.temperature = temperature
+        self.chapters_per_batch = chapters_per_batch
+
+    def convert(
+        self,
+        chapters: list,
+        characters: list[Character],
+        title: str = "",
+        author: str = "",
+    ) -> Screenplay:
+        """
+        转换小说为剧本
+
+        Args:
+            chapters: 章节列表（来自 NovelParser 的 Chapter 对象）
+            characters: 角色列表
+            title: 小说标题
+            author: 作者
+
+        Returns:
+            Screenplay 对象
+        """
+        character_info = self._format_characters(characters)
+
+        # 分批处理
+        batches = self._create_batches(chapters)
+
+        all_acts: list[Act] = []
+        scene_counter = 1
+
+        for i, batch in enumerate(batches, 1):
+            batch_content = self._format_batch(batch)
+            act_number = i
+
+            prompt = BATCH_PROMPT.format(
+                batch_num=i,
+                total_batches=len(batches),
+                chapters_content=batch_content,
+                characters=character_info,
+                act_number=act_number,
+            )
+
+            response = self._call_api(prompt)
+            parsed = self._parse_response(response)
+
+            if parsed and "acts" in parsed:
+                for act_data in parsed["acts"]:
+                    # 更新场景编号为全局编号
+                    for scene_data in act_data.get("scenes", []):
+                        scene_data["scene_number"] = scene_counter
+                        scene_counter += 1
+
+                    act = self._dict_to_act(act_data)
+                    all_acts.append(act)
+
+        metadata = Metadata(
+            title=title or "未命名剧本",
+            source_title=title or "",
+            author=author or "",
+        )
+
+        return Screenplay.create(
+            metadata=metadata,
+            characters=characters,
+            acts=all_acts,
+        )
+
+    def _call_api(self, prompt: str) -> str:
+        """
+        调用 Claude API
+
+        Args:
+            prompt: 完整的提示词
+
+        Returns:
+            API 响应文本
+        """
+        try:
+            message = self.client.messages.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+            )
+            return message.content[0].text
+        except Exception as e:
+            raise RuntimeError(f"API 调用失败: {e}") from e
+
+    def _parse_response(self, response: str) -> dict[str, Any] | None:
+        """
+        解析 API 响应
+
+        从响应文本中提取 YAML 内容并解析为字典。
+
+        Args:
+            response: API 响应文本
+
+        Returns:
+            解析后的字典，或 None 如果解析失败
+        """
+        # 提取 YAML 代码块
+        yaml_text = response
+
+        # 去除 markdown 代码块标记
+        if "```yaml" in yaml_text:
+            yaml_text = yaml_text.split("```yaml")[1]
+        elif "```" in yaml_text:
+            yaml_text = yaml_text.split("```")[1]
+
+        yaml_text = yaml_text.replace("```", "").strip()
+
+        try:
+            return yaml.safe_load(yaml_text)
+        except yaml.YAMLError as e:
+            # 尝试修复常见 YAML 问题
+            fixed = self._fix_yaml(yaml_text)
+            try:
+                return yaml.safe_load(fixed)
+            except yaml.YAMLError:
+                raise ValueError(f"无法解析 API 响应为 YAML: {e}") from e
+
+    def _fix_yaml(self, text: str) -> str:
+        """
+        修复常见的 YAML 格式问题
+
+        Args:
+            text: 原始 YAML 文本
+
+        Returns:
+            修复后的文本
+        """
+        lines = text.split("\n")
+        fixed = []
+
+        for line in lines:
+            # 修复缩进问题
+            stripped = line.lstrip()
+            indent = len(line) - len(stripped)
+
+            # 确保列表项正确缩进
+            if stripped.startswith("- ") and indent % 2 != 0:
+                indent = (indent // 2) * 2
+
+            fixed.append(" " * indent + stripped)
+
+        return "\n".join(fixed)
+
+    def _dict_to_act(self, data: dict[str, Any]) -> Act:
+        """
+        将字典转换为 Act 对象
+
+        Args:
+            data: 包含 act 数据的字典
+
+        Returns:
+            Act 对象
+        """
+        scenes = []
+        for scene_data in data.get("scenes", []):
+            elements = []
+            for elem_data in scene_data.get("elements", []):
+                elements.append(SceneElement(**elem_data))
+
+            scene = Scene(
+                scene_number=scene_data.get("scene_number", 0),
+                act_scene_number=scene_data.get("act_scene_number", 0),
+                heading=scene_data.get("heading", ""),
+                location=scene_data.get("location", ""),
+                time=scene_data.get("time", ""),
+                int_ext=scene_data.get("int_ext", ""),
+                description=scene_data.get("description", ""),
+                mood=scene_data.get("mood", ""),
+                elements=elements,
+                characters_present=scene_data.get("characters_present", []),
+            )
+            scenes.append(scene)
+
+        return Act(
+            act_number=data.get("act_number", 0),
+            title=data.get("title", ""),
+            description=data.get("description", ""),
+            scenes=scenes,
+        )
+
+    def _format_characters(self, characters: list[Character]) -> str:
+        """格式化角色信息为字符串"""
+        lines = []
+        for char in characters[:10]:  # 最多 10 个主要角色
+            lines.append(
+                f"- {char.name} ({char.importance.value}): {char.description[:60]}"
+            )
+        return "\n".join(lines)
+
+    def _create_batches(self, chapters: list) -> list[list]:
+        """将章节分批"""
+        batches = []
+        for i in range(0, len(chapters), self.chapters_per_batch):
+            batch = chapters[i : i + self.chapters_per_batch]
+            batches.append(batch)
+        return batches
+
+    def _format_batch(self, batch: list) -> str:
+        """格式化批次内容"""
+        lines = []
+        for ch in batch:
+            lines.append(f"## {ch.title}")
+            lines.append(ch.content[:3000])  # 限制每章长度
+            lines.append("")
+        return "\n\n".join(lines)

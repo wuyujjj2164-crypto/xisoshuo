@@ -1,0 +1,1427 @@
+# 剧本文件
+# 本文件由 AI 小说转剧本工具自动生成
+# 可直接编辑修改，支持 YAML 格式规范
+#
+# 结构说明：
+#   - metadata: 剧本元数据（标题、作者等）
+#   - characters: 角色列表
+#   - acts: 幕列表
+#     - scenes: 场景列表
+#       - elements: 场景元素（action/dialogue/transition 等）
+#
+
+screenplay:
+  version: 1.0.0
+  metadata:
+    title: 雾隐镇
+    source_title: 雾隐镇
+    author: 示例作者
+    genre: ''
+    total_scenes: 23
+    total_acts: 4
+    total_characters: 19
+    generated_at: '2026-06-05T12:41:52.487105'
+    version: 1.0.0
+  characters:
+  - id: char_001
+    name: 缓缓
+    aliases: []
+    description: 我是来调研的，"李明放下箱子，伸出手，"我叫李明，是省报记者。"  老人没有握手，只是吐出一口烟圈，缓缓说道："雾隐镇不欢迎外来人。你最好在天黑前离开。"  "为什么？"李明不解地问。  老人没有回答
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_002
+    name: 李明
+    aliases: []
+    description: 客栈里还有五六个客人，到了中午，只剩下他和一个老头。到了傍晚，连那个老头也不见了。  "其他人呢？"李明问老板。  "走了，"老板头也不抬，"雾隐镇就是这样，人来来往往。"  "但一夜之间全走了？"
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_003
+    name: 或者
+    aliases: []
+    description: 。在无数张脸中，有一张特别清晰——那是守灵人的脸，但年轻了许多。  "你就是山神，"李明盯着老人，"或者说，山神就是你。"  老人的脸色变了。  "百年前，你为了保命，与怨灵达成了交易，"李明继续说，
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_004
+    name: 明不解地
+    aliases: []
+    description: 没有握手，只是吐出一口烟圈，缓缓说道："雾隐镇不欢迎外来人。你最好在天黑前离开。"  "为什么？"李明不解地问。  老人没有回答，转身走进了屋里，只留下半扇门在风中吱呀作响。  李明摇了摇头，提起箱子
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_005
+    name: 老人没有
+    aliases: []
+    description: 出一口烟圈，缓缓说道："雾隐镇不欢迎外来人。你最好在天黑前离开。"  "为什么？"李明不解地问。  老人没有回答，转身走进了屋里，只留下半扇门在风中吱呀作响。  李明摇了摇头，提起箱子向镇里走去。石板
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_006
+    name: 也不抬地
+    aliases: []
+    description: 门口挂着褪色的红灯笼。李明推开门，一股陈旧的气息扑面而来。  "住店？"柜台后面坐着一个中年女人，头也不抬地问道。  "一晚，"李明掏出身份证，"请问镇上最近发生过什么特别的事吗？"  女人抬起头，用
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_007
+    name: 正要追
+    aliases: []
+    description: 有什么特别的，"女人打断了他，将钥匙扔在柜台上，"二楼左转第三间。晚上不要出门。"  李明拿起钥匙，正要追问，女人已经转过身去，不再理会他。
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_008
+    name: 明试探着
+    aliases: []
+    description: 一切如常。老板在擦桌子，几个客人在吃早饭，似乎没有人记得昨夜的铃声。  "昨晚的铃声......"李明试探着问道。  老板抬起头，一脸茫然："什么铃声？"  "就是半夜的......"  "你做梦了吧
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_009
+    name: 女孩没有
+    aliases: []
+    description: 头，看见一个年轻女孩，大约十七八岁，扎着两条辫子，穿着洗得发白的蓝布衣裳。  "为什么？"他问。  女孩没有回答，只是摇了摇头，转身跑开了。
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_010
+    name: 你是
+    aliases: []
+    description: '"它们不是人，但曾经是人。那些在雾中消失的村民，变成了雾影。它们在寻找替身。"  李明倒退了一步："你是说......"  "你来的那天晚上，雾影就出现了，"老板叹了口气，"它们已经盯上了你。"'
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_011
+    name: 他对自己
+    aliases: []
+    description: 明站在客栈的窗前，看着外面白茫茫的一片。他知道，今天就是答案揭晓的日子。  "我要去看看那座老宅，"他对自己说。  他裹紧外套，走进雾中。雾气冰冷而潮湿，能见度不到五米。他凭着记忆，向东头走去。  老
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_012
+    name: 老人
+    aliases: []
+    description: 洞穴，洞顶有一个裂缝，透进微弱的光线。洞穴中央有一口古井，井口冒着丝丝白雾。  "这就是雾的源头，"老人说，"山神就住在这口井里。"  李明走近井口，向下望去。井水漆黑如墨，深不见底。突然，他感到背后
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_013
+    name: 的一张脸
+    aliases: []
+    description: 我们是雾影，被困在这里的灵魂。百年来，我们等待着解脱。"  "怎么解脱？"  "打破诅咒，"最靠近他的一张脸说道，那是一个年轻女子的面容，"山神不是神，是一个被困在井中的怨灵。它在利用我们维持自己的力
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_014
+    name: 女子
+    aliases: []
+    description: 一个被困在井中的怨灵。它在利用我们维持自己的力量。"  "我该怎么打破诅咒？"  "找到它的真名，"女子说，"真名是它的力量之源。只要呼唤它的真名，它就会消散。"  "真名是什么？"  "在它的记忆里
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_015
+    name: 人颤抖着
+    aliases: []
+    description: ，大口喘着气。老人——守灵人——站在一旁，用一种惊讶的眼神看着他。  "你......你出来了？"老人颤抖着问，"从来没有人能从井里出来。"  李明站起身，脑海中浮现出刚才看到的画面。在无数张脸中，有
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_016
+    name: 李明继续
+    aliases: []
+    description: 盯着老人，"或者说，山神就是你。"  老人的脸色变了。  "百年前，你为了保命，与怨灵达成了交易，"李明继续说，"你成为了它的宿主，成为了'山神'。那些雾影，都是被你献祭的人。"  老人——或者说山神
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_017
+    name: 李明已经
+    aliases: []
+    description: '"  "我在井里看见了你的记忆，"李明说，"你的真名是——"  "不！"老人尖叫着，向他扑来。  但李明已经说出了那个名字："陈长青！"  空气仿佛凝固了一瞬，然后，老人——陈长青——发出一声凄厉的惨'
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_018
+    name: 孩微笑着
+    aliases: []
+    description: 层，照在雾隐镇的街道上。  镇口的老槐树下，站着一个女孩——是那天警告他的女孩。  "你做到了，"女孩微笑着说，"诅咒破了。"  "你是谁？"  "我是最后一个被献祭的人，"女孩说，"但我的灵魂没有被
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  - id: char_019
+    name: 女孩
+    aliases: []
+    description: 女孩。  "你做到了，"女孩微笑着说，"诅咒破了。"  "你是谁？"  "我是最后一个被献祭的人，"女孩说，"但我的灵魂没有被完全困住。我一直在等待有人能打破诅咒。"  "现在呢？"  "现在我们可以
+    traits: []
+    age: ''
+    gender: ''
+    importance: supporting
+    notes: ''
+  acts:
+  - act_number: 1
+    title: 第 1 幕
+    description: 包含场景 1-9
+    scenes:
+    - scene_number: 1
+      act_scene_number: 1
+      heading: 内景. 未知地点 - 日
+      location: 未知地点
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 清晨的雾气像一层薄纱，笼罩着这座偏远的小镇。李明拖着沉重的行李箱，站在镇口的老槐树下，望着眼前这条蜿蜒的石板路。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 新来的？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 一个沙哑的声音从身后传来。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明转过身，看见一位头发花白的老者，正倚在门框上抽着旱烟。老人的眼神锐利，似乎能看透人心。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 是的，我是来调研的，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明放下箱子，伸出手，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我叫李明，是省报记者。
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人没有握手，只是吐出一口烟圈，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 雾隐镇不欢迎外来人。你最好在天黑前离开。
+        character: 缓缓
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 为什么？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 李明
+      - 缓缓
+      estimated_duration: null
+    - scene_number: 2
+      act_scene_number: 2
+      heading: 内景. 了屋里 - 日
+      location: 了屋里
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: ，转身走进了屋里，只留下半扇门在风中吱呀作响。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明摇了摇头，提起箱子向镇里走去。石板路两旁是一排排老房子，斑驳的墙壁上爬满了青藤。偶尔有几扇窗户后面闪过窥探的目光，但当他抬头看去时，那些目光又迅速消失了。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 3
+      act_scene_number: 3
+      heading: 内景. 门口 - 日
+      location: 门口
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 镇子中央有一家小客栈，门口挂着褪色的红灯笼。李明推开门，一股陈旧的气息扑面而来。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 住店？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 柜台后面坐着一个中年女人，头。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 一晚，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明掏出身份证，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 请问镇上最近发生过什么特别的事吗？
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 女人抬起头，用一种奇怪的眼神看着他：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你问这个干什么？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我是记者，听说这里......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 没有什么特别的，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 女人打断了他，将钥匙扔在柜台上，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 二楼左转第三间。晚上不要出门。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明拿起钥匙，，女人已经转过身去，不再理会他。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 李明
+      estimated_duration: null
+    - scene_number: 4
+      act_scene_number: 1
+      heading: 内景. 未知地点 - 日
+      location: 未知地点
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 深夜，李明被一阵急促的铃声惊醒。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 5
+      act_scene_number: 2
+      heading: 内景. 铃声似乎来自楼 - 日
+      location: 铃声似乎来自楼
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 他猛地坐起身，心跳如鼓。铃声似乎来自楼下，清脆而急促，像是某种警报。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 怎么回事？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 他披上衣服，走到窗边。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 6
+      act_scene_number: 3
+      heading: 内景. 几乎看不清楼 - 日
+      location: 几乎看不清楼
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 雾气更浓了，几乎看不清楼下的街道。但借着昏暗的路灯，他隐约看见几个黑影在雾气中穿行，动作迅速而整齐。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明犹豫了一下，还是决定下楼看看。当他打开房门时，发现走廊里站着一个人。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 别出去，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 是客栈老板的声音，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 回去睡觉。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 外面发生了什么？那些人是......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 与你无关，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板的声音冷冰冰的，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 记住，在雾隐镇，好奇心会害死猫。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 7
+      act_scene_number: 4
+      heading: 内景. 盯着楼 - 日
+      location: 盯着楼
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 李明退回房间，但他没有睡觉。他坐在窗边，盯着楼下。那些黑影在雾气中消失了，铃声也停了下来，仿佛一切都没有发生过。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 8
+      act_scene_number: 5
+      heading: 内景. 盯着楼 - 日
+      location: 盯着楼
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 第二天一早，李明下楼时，客栈里一切如常。老板在擦桌子，几个客人在吃早饭，似乎没有人记得昨夜的铃声。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 昨晚的铃声......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板抬起头，一脸茫然：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 什么铃声？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 就是半夜的......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你做梦了吧，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板笑了笑，但那笑容没有到达眼底，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 雾隐镇很安静，从来没有什么铃声。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明感到一阵寒意。他确定那不是梦，那些黑影，那铃声，都那么真实。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 9
+      act_scene_number: 6
+      heading: 内景. 街道 - 日
+      location: 街道
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 走出客栈，镇上的街道上空无一人。他沿着石板路走着，不知不觉来到了镇子的东头。那里有一座废弃的老宅，大门紧闭，门上的红漆已经剥落殆尽。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 他正想走近看看，身后传来一个声音：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 不要靠近那座房子。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明回头，看见一个年轻女孩，大约十七八岁，扎着两条辫子，穿着洗得发白的蓝布衣裳。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 为什么？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: ，只是摇了摇头，转身跑开了。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    scene_count: 9
+  - act_number: 2
+    title: 第 2 幕
+    description: 包含场景 10-14
+    scenes:
+    - scene_number: 10
+      act_scene_number: 1
+      heading: 内景. 未知地点 - 日
+      location: 未知地点
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 第三天，李明发现镇上的人越来越少了。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 早餐时，客栈里还有五六个客人，到了中午，只剩下他和一个老头。到了傍晚，连那个老头也不见了。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 其他人呢？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 走了，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板头也不抬，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 雾隐镇就是这样，人来来往往。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 但一夜之间全走了？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板终于抬起头，看着他：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你想知道真相？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明点点头。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 11
+      act_scene_number: 2
+      heading: 内景. 厨房 - 日
+      location: 厨房
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: dialogue
+        content: 跟我来，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板放下抹布，向厨房走去。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 12
+      act_scene_number: 3
+      heading: 内景. 厨房 - 日
+      location: 厨房
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 厨房后面是一扇小门，通向地下。李明跟着老板走下昏暗的楼梯，空气中弥漫着潮湿和霉味。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 13
+      act_scene_number: 4
+      heading: 内景. 地下室 - 日
+      location: 地下室
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 地下室里点着几支蜡烛，墙上贴满了泛黄的报纸和照片。李明凑近一看，那些都是寻人启事。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 这......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 14
+      act_scene_number: 5
+      heading: 内景. 地下室里 - 日
+      location: 地下室里
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: dialogue
+        content: 十年来，雾隐镇失踪了二十七个人，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板的声音在地下室里回荡，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 他们都不是离开，是消失了。在雾气最浓的夜晚，消失得无影无踪。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明感到一阵眩晕：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 为什么没有人报警？
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 报了，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 但警察来查，什么都查不到。雾隐镇太偏僻，太普通，没有人会相信这里会发生怪事。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 那昨晚的铃声......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 那是镇上的警报，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板转过身，盯着他的眼睛，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 每当雾气中出现'那种东西'，铃声就会响起。我们叫它'雾影'。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 雾影？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 雾气中的影子，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板的声音变得低沉，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 它们不是人，但曾经是人。那些在雾中消失的村民，变成了雾影。它们在寻找替身。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明倒退了一步：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你是说......
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你来的那天晚上，雾影就出现了，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老板叹了口气，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 它们已经盯上了你。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 李明
+      estimated_duration: null
+    scene_count: 5
+  - act_number: 3
+    title: 第 3 幕
+    description: 包含场景 15-18
+    scenes:
+    - scene_number: 15
+      act_scene_number: 1
+      heading: 内景. 未知地点 - 日
+      location: 未知地点
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 第四天，雾气浓得像牛奶一样。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 16
+      act_scene_number: 2
+      heading: 内景. 窗前 - 日
+      location: 窗前
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 李明站在客栈的窗前，看着外面白茫茫的一片。他知道，今天就是答案揭晓的日子。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我要去看看那座老宅，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 他裹紧外套，走进雾中。雾气冰冷而潮湿，能见度不到五米。他凭着记忆，向东头走去。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老宅的大门竟然敞开着，像是在等他。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明深吸一口气，走了进去。院子里杂草丛生，正房的门也开着。他推开门，一股腐朽的气息扑面而来。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 屋里摆放着一张供桌，上面供奉着一些牌位。李明走近一看，那些牌位上写着失踪村民的名字。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你终于来了。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 17
+      act_scene_number: 3
+      heading: 内景. 门口 - 日
+      location: 门口
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 李明猛地转身，看见那位第一天遇到的老者，正站在门口。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你是......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我是雾隐镇的守灵人，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人走进来，将门关上，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 也是唯一知道真相的人。
+        character: 老人
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 真相？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人在供桌前坐下，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 百年前，雾隐镇遭遇了一场瘟疫。为了保命，村民们向山神献祭，承诺每年献上一个人。山神给了他们保护，但也下了诅咒——献祭者的灵魂会永远困在雾中，成为雾影。
+        character: 缓缓
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 那失踪的村民......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 是新的献祭品，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人叹了口气，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 但不是我们主动献上的。诅咒失控了，雾影开始自己寻找猎物。它们渴望解脱，需要一个替死鬼。
+        character: 老人
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明感到一阵恐惧：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 那我要怎么离开？
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 离开？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人摇了摇头，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 进了雾隐镇的人，没有一个能离开。除非......
+        character: 老人
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 除非什么？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 除非有人愿意替代你，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人站起身，走向供桌后面的暗门，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 来吧，我带你去见山神。
+        character: 老人
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 暗门后面是一条幽深的隧道，通向山的深处。李明跟在老人身后，心跳越来越快。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 隧道的尽头是一个巨大的洞穴，洞顶有一个裂缝，透进微弱的光线。洞穴中央有一口古井，井口冒着丝丝白雾。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 李明
+      - 缓缓
+      - 老人
+      estimated_duration: null
+    - scene_number: 18
+      act_scene_number: 4
+      heading: 内景. 这口井里 - 日
+      location: 这口井里
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: dialogue
+        content: 这就是雾的源头，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 山神就住在这口井里。
+        character: 老人
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明走近井口，向下望去。井水漆黑如墨，深不见底。突然，他感到背后有人推了他一把。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 他失去了平衡，向井中坠落......
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 老人
+      estimated_duration: null
+    scene_count: 4
+  - act_number: 4
+    title: 第 4 幕
+    description: 包含场景 19-23
+    scenes:
+    - scene_number: 19
+      act_scene_number: 1
+      heading: 内景. 未知地点 - 日
+      location: 未知地点
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 李明在黑暗中坠落，但预期中的撞击并没有到来。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 他感到自己悬浮在水中，四周是温暖的液体。那些液体流入他的口鼻，但他并不感到窒息，反而有一种奇异的平静。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 然后，他看见了它们。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 无数的光点在黑暗中闪烁，像是一群萤火虫。那些光点逐渐靠近，他看清了——那是人脸，无数张人脸，漂浮在水中。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 救救我们......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 它们低声呢喃，声音重叠在一起，形成一种诡异的多重唱。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你们是谁？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我们是雾影，被困在这里的灵魂。百年来，我们等待着解脱。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 怎么解脱？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 打破诅咒，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 最靠近他，那是一个年轻女子的面容，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 山神不是神，是一个被困在井中的怨灵。它在利用我们维持自己的力量。
+        character: 的一张脸
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我该怎么打破诅咒？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 找到它的真名，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 真名是它的力量之源。只要呼唤它的真名，它就会消散。
+        character: 女子
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 真名是什么？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 女子
+      - 的一张脸
+      estimated_duration: null
+    - scene_number: 20
+      act_scene_number: 2
+      heading: 内景. 它的记忆里 - 日
+      location: 它的记忆里
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: dialogue
+        content: 在它的记忆里，在它的起源里。
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 光点开始消散，李明感到一股力量将他向上推去。他穿过水面，从井中飞了出来。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 他躺在洞穴的地面上，大口喘着气。老人——守灵人——站在一旁，用一种惊讶的眼神看着他。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你......你出来了？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 从来没有人能从井里出来。
+        character: 人颤抖着
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明站起身，脑海中浮现出刚才看到的画面。在无数张脸中，有一张特别清晰——那是守灵人的脸，但年轻了许多。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你就是山神，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明盯着老人，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 或者说，山神就是你。
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人的脸色变了。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 百年前，你为了保命，与怨灵达成了交易，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: ，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你成为了它的宿主，成为了'山神'。那些雾影，都是被你献祭的人。
+        character: 李明继续
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 老人——山神——的脸开始扭曲，雾气从他身上涌出。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你怎么知道......
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我在井里看见了你的记忆，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你的真名是——
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: action
+        content: '"不！"老人尖叫着，向他扑来。'
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 但出了那个名字：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 陈长青！
+        character: 李明已经
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 空气仿佛凝固了一瞬，然后，老人——陈长青——发出一声凄厉的惨叫，身体开始崩解，化为雾气消散在空气中。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 洞穴开始震动，古井中的水沸腾起来。李明向隧道跑去，身后传来巨大的轰鸣声。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 李明
+      - 李明已经
+      - 李明继续
+      - 人颤抖着
+      estimated_duration: null
+    - scene_number: 21
+      act_scene_number: 3
+      heading: 内景. 雾隐镇的街 - 日
+      location: 雾隐镇的街
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 他跑出隧道，跑出老宅，跑进雾中。雾气开始消散，阳光穿透云层，照在雾隐镇的街道上。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present: []
+      estimated_duration: null
+    - scene_number: 22
+      act_scene_number: 4
+      heading: 内景. 树下 - 日
+      location: 树下
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 镇口的老槐树下，站着一个女孩——是那天警告他的女孩。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你做到了，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 女，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 诅咒破了。
+        character: 孩微笑着
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你是谁？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我是最后一个被献祭的人，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 但我的灵魂没有被完全困住。我一直在等待有人能打破诅咒。
+        character: 女孩
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 现在呢？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 现在我们可以安息了，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 女孩的身影开始变得透明，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 谢谢你。
+        character: 女孩
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 她消失在晨光中。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 孩微笑着
+      - 女孩
+      estimated_duration: null
+    - scene_number: 23
+      act_scene_number: 5
+      heading: 内景. 街道 - 日
+      location: 街道
+      time: 日
+      int_ext: 内景
+      description: ''
+      mood: ''
+      elements:
+      - type: action
+        content: 李明站在镇口，看着雾气彻底散去。街道上开始有人影走动，那些消失的村民回来了，一脸茫然，不知道自己曾经消失过。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 客栈老板走出来，看着他：
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 你......你做了什么？
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 我帮你们解除了诅咒，
+        character: 未知角色
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 李明笑了笑，提起箱子，
+        character: null
+        parenthetical: null
+        notes: null
+      - type: dialogue
+        content: 现在，我可以离开了。
+        character: 李明
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 他沿着石板路走出镇子，身后是晨光中的雾隐镇——不，现在应该叫它晨光镇了。
+        character: null
+        parenthetical: null
+        notes: null
+      - type: action
+        content: 但他知道，这个故事，他会永远记住。
+        character: null
+        parenthetical: null
+        notes: null
+      characters_present:
+      - 李明
+      estimated_duration: null
+    scene_count: 5
