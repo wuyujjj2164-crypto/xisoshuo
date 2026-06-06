@@ -1,0 +1,185 @@
+"""
+AI 小说转剧本工具 - Web 界面
+
+基于 Flask 的可视化操作界面，支持文件上传、转换配置和结果预览。
+"""
+
+import atexit
+import os
+import shutil
+import uuid
+
+from flask import Flask, jsonify, render_template, request, send_file
+
+from novel_to_script.analyzer import NovelAnalyzer
+from novel_to_script.formatter import YAMLFormatter
+from novel_to_script.local_converter import LocalConverter
+from novel_to_script.parser import NovelParser
+
+app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB
+
+# 项目临时目录（用于保存生成的剧本文件）
+TMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
+os.makedirs(TMP_DIR, exist_ok=True)
+
+
+def _cleanup_tmp():
+    """进程退出时清理临时目录"""
+    if os.path.exists(TMP_DIR):
+        shutil.rmtree(TMP_DIR, ignore_errors=True)
+
+
+atexit.register(_cleanup_tmp)
+
+
+def _is_safe_path(path: str) -> bool:
+    """验证路径是否在允许的临时目录内，防止路径遍历"""
+    if not path:
+        return False
+    abs_path = os.path.abspath(path)
+    abs_tmp = os.path.abspath(TMP_DIR)
+    # 确保路径以 TMP_DIR 开头
+    return abs_path.startswith(abs_tmp + os.sep) or abs_path == abs_tmp
+
+
+@app.route("/")
+def index():
+    """首页"""
+    return render_template("index.html")
+
+
+@app.route("/api/convert", methods=["POST"])
+def convert():
+    """转换API"""
+    if "file" not in request.files:
+        return jsonify({"error": "请上传文件"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "文件名为空"}), 400
+
+    # 读取配置
+    title = request.form.get("title", "")
+    author = request.form.get("author", "")
+    mode = request.form.get("mode", "local")
+
+    try:
+        # 读取文件内容
+        content = file.read().decode("utf-8")
+    except UnicodeDecodeError:
+        return jsonify({"error": "文件编码错误，请使用 UTF-8 编码的文本文件"}), 400
+
+    # 步骤1: 解析
+    parser = NovelParser()
+    try:
+        novel = parser.parse(content, title=title, author=author)
+    except ValueError as e:
+        return jsonify({"error": f"解析失败: {e}"}), 400
+
+    # 步骤2: 分析
+    analyzer = NovelAnalyzer()
+    analysis = analyzer.analyze(novel)
+
+    # 步骤3: 转换
+    if mode == "local":
+        converter = LocalConverter()
+        screenplay = converter.convert(
+            chapters=novel.chapters,
+            characters=analysis["characters"],
+            title=title or novel.title,
+            author=author or novel.author,
+        )
+    else:
+        return jsonify({"error": "AI模式需要配置API密钥，当前仅支持本地模式"}), 400
+
+    # 步骤4: 格式化
+    formatter = YAMLFormatter()
+    yaml_content = formatter.format(screenplay)
+
+    # 保存到项目临时目录（使用 UUID 避免并发冲突）
+    temp_filename = f"screenplay_{uuid.uuid4().hex}.yaml"
+    temp_path = os.path.join(TMP_DIR, temp_filename)
+    with open(temp_path, "w", encoding="utf-8") as f:
+        f.write(yaml_content)
+
+    # 统计信息
+    stats = {
+        "chapters": len(novel.chapters),
+        "acts": len(screenplay.screenplay["acts"]),
+        "scenes": sum(len(a["scenes"]) for a in screenplay.screenplay["acts"]),
+        "characters": len(screenplay.screenplay["characters"]),
+        "word_count": novel.total_word_count,
+    }
+
+    return jsonify({
+        "success": True,
+        "yaml": yaml_content,
+        "stats": stats,
+        "download_url": f"/api/download?file={temp_filename}",
+    })
+
+
+@app.route("/api/download")
+def download():
+    """下载生成的YAML文件"""
+    filename = request.args.get("file", "")
+    if not filename:
+        return jsonify({"error": "缺少文件名参数"}), 400
+
+    # 防止路径遍历：只接受纯文件名，不接受路径分隔符
+    if os.sep in filename or "/" in filename or "\\" in filename or ".." in filename:
+        return jsonify({"error": "非法文件名"}), 403
+
+    path = os.path.join(TMP_DIR, filename)
+    if not _is_safe_path(path) or not os.path.exists(path):
+        return jsonify({"error": "文件不存在或无权访问"}), 403
+
+    return send_file(path, as_attachment=True, download_name="screenplay.yaml")
+
+
+@app.route("/api/analyze", methods=["POST"])
+def analyze():
+    """仅分析API"""
+    if "file" not in request.files:
+        return jsonify({"error": "请上传文件"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "文件名为空"}), 400
+
+    try:
+        content = file.read().decode("utf-8")
+    except UnicodeDecodeError:
+        return jsonify({"error": "文件编码错误"}), 400
+
+    parser = NovelParser()
+    try:
+        novel = parser.parse(content)
+    except ValueError as e:
+        return jsonify({"error": f"解析失败: {e}"}), 400
+
+    analyzer = NovelAnalyzer()
+    analysis = analyzer.analyze(novel)
+
+    return jsonify({
+        "success": True,
+        "chapters": len(novel.chapters),
+        "word_count": novel.total_word_count,
+        "characters": [
+            {"name": c.name, "importance": c.importance.value}
+            for c in analysis["characters"][:10]
+        ],
+        "locations": [loc["name"] for loc in analysis["locations"][:10]],
+        "timeline": analysis["timeline"][:10],
+    })
+
+
+if __name__ == "__main__":
+    print("=" * 50)
+    print("AI 小说转剧本工具 - Web 界面")
+    print("=" * 50)
+    print("请在浏览器中打开: http://127.0.0.1:5000")
+    print("按 Ctrl+C 停止服务")
+    print("=" * 50)
+    app.run(host="127.0.0.1", port=5000, debug=False)
