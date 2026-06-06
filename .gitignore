@@ -51,3 +51,13 @@ config.local.yaml
 .progress.md
 .findings.md
 .planning/
+
+# Generated output files
+examples/demo_output.yaml
+examples/sample_output.yaml
+test_output.yaml
+
+# Planning files (not for repo)
+task_plan.md
+findings.md
+progress.md
