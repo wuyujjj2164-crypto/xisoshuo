@@ -75,7 +75,7 @@ def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = ""):
         model = "claude-sonnet-4-6"
     elif provider == "kimi":
         model = "moonshot-v1-32k"
-        base_url = "https://api.moonshot.cn/v1"
+        base_url = "https://api.kimi.com/coding/v1"
     else:
         # openai 兼容格式，尝试从环境变量读取 base_url
         model = "gpt-4o"
