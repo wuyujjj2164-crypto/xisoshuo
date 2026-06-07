@@ -13,7 +13,7 @@ from flask import Flask, jsonify, render_template, request, send_file
 
 from novel_to_script.ai_analyzer import AINovelAnalyzer
 from novel_to_script.analyzer import NovelAnalyzer
-from novel_to_script.formatter import YAMLFormatter
+from novel_to_script.formatter import ScreenplayFormatter, YAMLFormatter
 from novel_to_script.local_converter import LocalConverter
 from novel_to_script.parser import NovelParser
 from novel_to_script.converter import ScriptConverter
@@ -228,15 +228,23 @@ def convert():
             )
             ai_error = f"AI 剧本生成失败: {str(e)}，已回退到本地转换"
 
-    # 步骤4: 格式化
-    formatter = YAMLFormatter()
-    yaml_content = formatter.format(screenplay)
+    # 步骤4: 格式化（同时生成 YAML 和纯文本两种格式）
+    yaml_formatter = YAMLFormatter()
+    yaml_content = yaml_formatter.format(screenplay)
+
+    text_formatter = ScreenplayFormatter()
+    text_content = text_formatter.format(screenplay)
 
     # 保存到项目临时目录（使用 UUID 避免并发冲突）
-    temp_filename = f"screenplay_{uuid.uuid4().hex}.yaml"
-    temp_path = os.path.join(TMP_DIR, temp_filename)
-    with open(temp_path, "w", encoding="utf-8") as f:
+    file_id = uuid.uuid4().hex
+    yaml_filename = f"screenplay_{file_id}.yaml"
+    txt_filename = f"screenplay_{file_id}.txt"
+    yaml_path = os.path.join(TMP_DIR, yaml_filename)
+    txt_path = os.path.join(TMP_DIR, txt_filename)
+    with open(yaml_path, "w", encoding="utf-8") as f:
         f.write(yaml_content)
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write(text_content)
 
     # 统计信息
     stats = {
@@ -250,8 +258,10 @@ def convert():
     result = {
         "success": True,
         "yaml": yaml_content,
+        "text": text_content,
         "stats": stats,
-        "download_url": f"/api/download?file={temp_filename}",
+        "download_url_yaml": f"/api/download?file={yaml_filename}",
+        "download_url_text": f"/api/download?file={txt_filename}",
     }
 
     # 标记 AI 分析状态
@@ -265,7 +275,7 @@ def convert():
 
 @app.route("/api/download")
 def download():
-    """下载生成的YAML文件"""
+    """下载生成的剧本文件"""
     filename = request.args.get("file", "")
     if not filename:
         return jsonify({"error": "缺少文件名参数"}), 400
@@ -278,7 +288,13 @@ def download():
     if not _is_safe_path(path) or not os.path.exists(path):
         return jsonify({"error": "文件不存在或无权访问"}), 403
 
-    return send_file(path, as_attachment=True, download_name="screenplay.yaml")
+    # 根据扩展名决定下载文件名
+    if filename.endswith(".txt"):
+        download_name = "screenplay.txt"
+    else:
+        download_name = "screenplay.yaml"
+
+    return send_file(path, as_attachment=True, download_name=download_name)
 
 
 @app.route("/api/analyze", methods=["POST"])

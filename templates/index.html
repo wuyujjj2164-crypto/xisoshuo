@@ -791,15 +791,22 @@
                 <div class="card">
                     <div class="stats-grid" id="convertStats"></div>
                     <div class="btn-group" style="margin-bottom:20px;">
-                        <button class="btn btn-primary" onclick="downloadFile()">
-                            <span>&#11015;</span> 下载 YAML 剧本
+                        <button class="btn btn-primary" onclick="downloadFile('yaml')">
+                            <span>&#11015;</span> 下载 YAML（结构化数据）
+                        </button>
+                        <button class="btn btn-secondary" onclick="downloadFile('text')">
+                            <span>&#11015;</span> 下载标准剧本（导演版）
                         </button>
                     </div>
                     <div class="preview-header">
-                        <span>YAML 预览</span>
-                        <span style="font-size:0.75rem; color:var(--text-muted);">滚动查看更多</span>
+                        <span id="previewLabel">YAML 预览</span>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <button class="btn btn-secondary" style="padding:4px 12px; font-size:0.75rem;" onclick="switchPreview('yaml')">YAML</button>
+                            <button class="btn btn-secondary" style="padding:4px 12px; font-size:0.75rem;" onclick="switchPreview('text')">标准剧本</button>
+                        </div>
                     </div>
                     <div class="yaml-preview" id="yamlPreview"></div>
+                    <div class="yaml-preview hidden" id="textPreview"></div>
                 </div>
             </div>
         </div>
@@ -816,7 +823,8 @@
         const analyzeBtn = document.getElementById('analyzeBtn');
         const convertBtn = document.getElementById('convertBtn');
         let currentFile = null;
-        let downloadUrl = '';
+        let downloadUrlYaml = '';
+        let downloadUrlText = '';
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
@@ -1025,8 +1033,10 @@
                     </div>
                 `;
 
-                downloadUrl = data.download_url;
+                downloadUrlYaml = data.download_url_yaml;
+                downloadUrlText = data.download_url_text;
                 document.getElementById('yamlPreview').textContent = data.yaml;
+                document.getElementById('textPreview').textContent = data.text;
 
                 const resultEl = document.getElementById('convertResult');
                 resultEl.classList.remove('hidden');
@@ -1041,9 +1051,26 @@
             }
         }
 
-        function downloadFile() {
-            if (downloadUrl) {
-                window.location.href = downloadUrl;
+        function downloadFile(format) {
+            if (format === 'text' && downloadUrlText) {
+                window.location.href = downloadUrlText;
+            } else if (format === 'yaml' && downloadUrlYaml) {
+                window.location.href = downloadUrlYaml;
+            }
+        }
+
+        function switchPreview(type) {
+            const yamlPreview = document.getElementById('yamlPreview');
+            const textPreview = document.getElementById('textPreview');
+            const label = document.getElementById('previewLabel');
+            if (type === 'text') {
+                yamlPreview.classList.add('hidden');
+                textPreview.classList.remove('hidden');
+                label.textContent = '标准剧本预览';
+            } else {
+                textPreview.classList.add('hidden');
+                yamlPreview.classList.remove('hidden');
+                label.textContent = 'YAML 预览';
             }
         }
     </script>
