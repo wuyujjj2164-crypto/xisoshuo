@@ -686,11 +686,11 @@
                         <label>转换模式</label>
                         <select id="mode">
                             <option value="local">本地模式 — 基于规则快速转换</option>
-                            <option value="ai" disabled>AI 模式 — 调用 Claude API（需配置密钥）</option>
+                            <option value="ai">AI 模式 — 调用 Claude API（质量更高，需密钥）</option>
                         </select>
                         <div class="mode-note">
                             <span style="color: var(--accent-light);">&#9432;</span>
-                            当前使用本地模式，无需 API 密钥即可转换
+                            本地模式无需 API 密钥，AI 模式需要输入下方密钥
                         </div>
                     </div>
                 </div>
@@ -703,7 +703,17 @@
                         </select>
                         <div class="mode-note">
                             <span style="color: var(--accent-light);">&#9432;</span>
-                            AI 分析能更准确识别角色和地点，但需要配置 API 密钥
+                            AI 分析能更准确识别角色和地点
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" id="apiKeyRow">
+                    <div class="form-group">
+                        <label>API 密钥 <span style="color:var(--text-muted);font-weight:400;">(仅 AI 模式需要)</span></label>
+                        <input type="password" id="apiKey" placeholder="输入 Anthropic / OpenAI API 密钥">
+                        <div class="mode-note">
+                            <span style="color: var(--accent-light);">&#9432;</span>
+                            密钥仅在本次请求中使用，不会保存到服务器
                         </div>
                     </div>
                 </div>
@@ -773,8 +783,20 @@
         const filename = document.getElementById('filename');
         const analyzeBtn = document.getElementById('analyzeBtn');
         const convertBtn = document.getElementById('convertBtn');
+        const modeSelect = document.getElementById('mode');
+        const analyzeModeSelect = document.getElementById('analyzeMode');
+        const apiKeyRow = document.getElementById('apiKeyRow');
         let currentFile = null;
         let downloadUrl = '';
+
+        // 根据模式选择显示/隐藏 API 密钥输入框
+        function updateApiKeyVisibility() {
+            const needsKey = modeSelect.value === 'ai' || analyzeModeSelect.value === 'ai';
+            apiKeyRow.style.display = needsKey ? '' : 'none';
+        }
+        modeSelect.addEventListener('change', updateApiKeyVisibility);
+        analyzeModeSelect.addEventListener('change', updateApiKeyVisibility);
+        updateApiKeyVisibility(); // 初始状态
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
@@ -844,6 +866,8 @@
             const formData = new FormData();
             formData.append('file', currentFile);
             formData.append('ai_analyze', document.getElementById('analyzeMode').value === 'ai');
+            const apiKey = document.getElementById('apiKey').value;
+            if (apiKey) formData.append('api_key', apiKey);
 
             try {
                 const res = await fetch('/api/analyze', { method: 'POST', body: formData });
@@ -920,6 +944,8 @@
             formData.append('author', document.getElementById('author').value);
             formData.append('mode', mode);
             formData.append('ai_analyze', document.getElementById('analyzeMode').value === 'ai');
+            const apiKey = document.getElementById('apiKey').value;
+            if (apiKey) formData.append('api_key', apiKey);
 
             try {
                 const res = await fetch('/api/convert', { method: 'POST', body: formData });

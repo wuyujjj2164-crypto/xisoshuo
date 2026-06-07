@@ -44,7 +44,7 @@ def _is_safe_path(path: str) -> bool:
     return abs_path.startswith(abs_tmp + os.sep) or abs_path == abs_tmp
 
 
-def _get_analyzer(ai_mode: bool = False):
+def _get_analyzer(ai_mode: bool = False, api_key: str = ""):
     """
     获取分析器实例
     ai_mode=True 时尝试使用 AI 分析器，失败则回退到本地
@@ -52,16 +52,19 @@ def _get_analyzer(ai_mode: bool = False):
     if not ai_mode:
         return NovelAnalyzer()
 
-    # 尝试使用 AI 分析器
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
+    # 优先使用前端传入的密钥，其次环境变量
+    key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    if not key:
         return NovelAnalyzer()  # 无密钥则回退本地
+
+    # 根据密钥前缀判断 provider
+    provider = "openai" if key.startswith("sk-") and not key.startswith("sk-ant-") else "anthropic"
 
     try:
         return AINovelAnalyzer(
-            api_key=api_key,
-            model="claude-sonnet-4-6",
-            provider="anthropic",
+            api_key=key,
+            model="claude-sonnet-4-6" if provider == "anthropic" else "gpt-4o",
+            provider=provider,
         )
     except Exception:
         return NovelAnalyzer()  # 初始化失败则回退本地
@@ -103,7 +106,8 @@ def convert():
 
     # 步骤2: 分析
     ai_analyze = request.form.get("ai_analyze", "false").lower() == "true"
-    analyzer = _get_analyzer(ai_mode=ai_analyze)
+    api_key = request.form.get("api_key", "")
+    analyzer = _get_analyzer(ai_mode=ai_analyze, api_key=api_key)
     analysis = analyzer.analyze(novel)
 
     # 步骤3: 转换
@@ -185,7 +189,8 @@ def analyze():
         return jsonify({"error": f"解析失败: {e}"}), 400
 
     ai_mode = request.form.get("ai_analyze", "false").lower() == "true"
-    analyzer = _get_analyzer(ai_mode=ai_mode)
+    api_key = request.form.get("api_key", "")
+    analyzer = _get_analyzer(ai_mode=ai_mode, api_key=api_key)
     analysis = analyzer.analyze(novel)
 
     result = {
