@@ -47,15 +47,16 @@ def _is_safe_path(path: str) -> bool:
 def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = ""):
     """
     获取分析器实例
-    ai_mode=True 时尝试使用 AI 分析器，失败则回退到本地
+    ai_mode=True 时尝试使用 AI 分析器
+    返回 (analyzer, error_message)
     """
     if not ai_mode:
-        return NovelAnalyzer()
+        return NovelAnalyzer(), None
 
     # 优先使用前端传入的密钥，其次环境变量
     key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("MOONSHOT_API_KEY")
     if not key:
-        return NovelAnalyzer()  # 无密钥则回退本地
+        return NovelAnalyzer(), "未提供 API 密钥，已回退到本地规则分析"
 
     # 确定 provider
     provider = (provider or "").lower()
@@ -82,14 +83,17 @@ def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = ""):
         base_url = os.environ.get("OPENAI_BASE_URL")
 
     try:
-        return AINovelAnalyzer(
+        analyzer = AINovelAnalyzer(
             api_key=key,
             model=model,
             provider=provider,
             base_url=base_url,
         )
-    except Exception:
-        return NovelAnalyzer()  # 初始化失败则回退本地
+        return analyzer, None
+    except ImportError as e:
+        return NovelAnalyzer(), f"AI 分析依赖未安装: {e}"
+    except Exception as e:
+        return NovelAnalyzer(), f"AI 分析器初始化失败: {e}"
 
 
 @app.route("/")
@@ -130,8 +134,12 @@ def convert():
     ai_analyze = request.form.get("ai_analyze", "false").lower() == "true"
     api_key = request.form.get("api_key", "")
     provider = request.form.get("provider", "")
-    analyzer = _get_analyzer(ai_mode=ai_analyze, api_key=api_key, provider=provider)
+    analyzer, ai_error = _get_analyzer(ai_mode=ai_analyze, api_key=api_key, provider=provider)
     analysis = analyzer.analyze(novel)
+
+    # 如果用户要求 AI 分析但失败了，显示警告
+    if ai_analyze and ai_error and not isinstance(analyzer, AINovelAnalyzer):
+        pass  # 继续用本地规则，但结果中会包含 ai_error
 
     # 步骤3: 转换
     if mode == "local":
@@ -164,12 +172,20 @@ def convert():
         "word_count": novel.total_word_count,
     }
 
-    return jsonify({
+    result = {
         "success": True,
         "yaml": yaml_content,
         "stats": stats,
         "download_url": f"/api/download?file={temp_filename}",
-    })
+    }
+
+    # 标记 AI 分析状态
+    if ai_analyze and isinstance(analyzer, AINovelAnalyzer):
+        result["ai_analyzed"] = True
+    elif ai_analyze and ai_error:
+        result["ai_error"] = ai_error
+
+    return jsonify(result)
 
 
 @app.route("/api/download")
@@ -214,7 +230,7 @@ def analyze():
     ai_mode = request.form.get("ai_analyze", "false").lower() == "true"
     api_key = request.form.get("api_key", "")
     provider = request.form.get("provider", "")
-    analyzer = _get_analyzer(ai_mode=ai_mode, api_key=api_key, provider=provider)
+    analyzer, ai_error = _get_analyzer(ai_mode=ai_mode, api_key=api_key, provider=provider)
     analysis = analyzer.analyze(novel)
 
     result = {
@@ -232,6 +248,8 @@ def analyze():
     # 标记是否使用了 AI 分析
     if ai_mode and isinstance(analyzer, AINovelAnalyzer):
         result["ai_analyzed"] = True
+    elif ai_mode and ai_error:
+        result["ai_error"] = ai_error
 
     return jsonify(result)
 

@@ -886,6 +886,10 @@
                     return;
                 }
 
+                if (data.ai_error) {
+                    showAlert('⚠️ ' + data.ai_error, 'info');
+                }
+
                 const stats = document.getElementById('analyzeStats');
                 stats.innerHTML = `
                     <div class="stat-card">
@@ -966,6 +970,10 @@
                 if (data.error) {
                     showAlert(data.error, 'error');
                     return;
+                }
+
+                if (data.ai_error) {
+                    showAlert('⚠️ ' + data.ai_error, 'info');
                 }
 
                 const stats = document.getElementById('convertStats');
