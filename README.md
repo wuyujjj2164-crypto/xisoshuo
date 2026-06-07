@@ -69,10 +69,26 @@ python main.py novel.txt --title "小说标题" --author "作者名" -o output.y
 | `--author` | 作者名称 | 自动检测 |
 | `--local` | 使用本地规则转换 | `false` |
 | `--analyze-only` | 仅分析小说结构 | `false` |
+| `--ai-analyze` | 使用 AI 分析角色和场景（更准确，需 API） | `false` |
 | `--config` | 配置文件路径 | `config.yaml` |
 | `--api-key` | Anthropic API 密钥 | 环境变量 |
 | `--model` | AI 模型名称 | `claude-sonnet-4-6` |
 | `-v, --verbose` | 显示详细日志 | `false` |
+
+### AI 智能分析模式
+
+```bash
+# 使用 AI 分析小说结构（比本地规则更准确）
+python main.py novel.txt --ai-analyze --analyze-only
+
+# AI 分析 + AI 转换（全流程 AI）
+python main.py novel.txt --ai-analyze -o screenplay.yaml
+```
+
+AI 分析优势：
+- **角色识别更准确**：不受 "XX说道" 格式限制，能识别各种对话模式
+- **地点提取更智能**：能识别隐晦的地点描述，过滤噪声
+- **支持多种小说风格**：现代文、古文、网文等不同写作风格
 
 ### 仅分析模式
 
@@ -206,6 +222,17 @@ anthropic:
   model: "claude-sonnet-4-6"  # AI 模型
   max_tokens: 4096         # 最大输出 token
   temperature: 0.3         # 创造性程度
+
+openai:
+  api_key: ""              # OpenAI 兼容 API 密钥
+  base_url: ""             # API 基础地址（DeepSeek/通义千问等）
+  model: "gpt-4o"          # 模型名称
+  max_tokens: 4096
+  temperature: 0.3
+
+ai_analyzer:
+  enabled: false           # 是否默认启用 AI 分析
+  provider: "anthropic"    # 分析器使用的 API：anthropic / openai
 
 conversion:
   chapters_per_batch: 3    # 每批处理的章节数

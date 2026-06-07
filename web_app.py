@@ -11,6 +11,7 @@ import uuid
 
 from flask import Flask, jsonify, render_template, request, send_file
 
+from novel_to_script.ai_analyzer import AINovelAnalyzer
 from novel_to_script.analyzer import NovelAnalyzer
 from novel_to_script.formatter import YAMLFormatter
 from novel_to_script.local_converter import LocalConverter
@@ -41,6 +42,29 @@ def _is_safe_path(path: str) -> bool:
     abs_tmp = os.path.abspath(TMP_DIR)
     # 确保路径以 TMP_DIR 开头
     return abs_path.startswith(abs_tmp + os.sep) or abs_path == abs_tmp
+
+
+def _get_analyzer(ai_mode: bool = False):
+    """
+    获取分析器实例
+    ai_mode=True 时尝试使用 AI 分析器，失败则回退到本地
+    """
+    if not ai_mode:
+        return NovelAnalyzer()
+
+    # 尝试使用 AI 分析器
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return NovelAnalyzer()  # 无密钥则回退本地
+
+    try:
+        return AINovelAnalyzer(
+            api_key=api_key,
+            model="claude-sonnet-4-6",
+            provider="anthropic",
+        )
+    except Exception:
+        return NovelAnalyzer()  # 初始化失败则回退本地
 
 
 @app.route("/")
@@ -78,7 +102,8 @@ def convert():
         return jsonify({"error": f"解析失败: {e}"}), 400
 
     # 步骤2: 分析
-    analyzer = NovelAnalyzer()
+    ai_analyze = request.form.get("ai_analyze", "false").lower() == "true"
+    analyzer = _get_analyzer(ai_mode=ai_analyze)
     analysis = analyzer.analyze(novel)
 
     # 步骤3: 转换
@@ -159,10 +184,11 @@ def analyze():
     except ValueError as e:
         return jsonify({"error": f"解析失败: {e}"}), 400
 
-    analyzer = NovelAnalyzer()
+    ai_mode = request.form.get("ai_analyze", "false").lower() == "true"
+    analyzer = _get_analyzer(ai_mode=ai_mode)
     analysis = analyzer.analyze(novel)
 
-    return jsonify({
+    result = {
         "success": True,
         "chapters": len(novel.chapters),
         "word_count": novel.total_word_count,
@@ -172,7 +198,13 @@ def analyze():
         ],
         "locations": [loc["name"] for loc in analysis["locations"][:10]],
         "timeline": analysis["timeline"][:10],
-    })
+    }
+
+    # 标记是否使用了 AI 分析
+    if ai_mode and isinstance(analyzer, AINovelAnalyzer):
+        result["ai_analyzed"] = True
+
+    return jsonify(result)
 
 
 if __name__ == "__main__":

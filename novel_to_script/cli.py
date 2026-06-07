@@ -11,6 +11,7 @@ from pathlib import Path
 
 import yaml
 
+from .ai_analyzer import AINovelAnalyzer
 from .analyzer import NovelAnalyzer
 from .converter import ScriptConverter
 from .formatter import YAMLFormatter
@@ -87,6 +88,12 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--ai-analyze",
+        action="store_true",
+        help="使用 AI 分析小说结构（需要 API 密钥，比本地规则更准确）",
+    )
+
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="显示详细日志",
@@ -120,6 +127,17 @@ def load_config(config_path: str) -> dict:
             "model": "claude-sonnet-4-6",
             "max_tokens": 4096,
             "temperature": 0.3,
+        },
+        "openai": {
+            "api_key": "",
+            "model": "gpt-4o",
+            "base_url": "",
+            "max_tokens": 4096,
+            "temperature": 0.3,
+        },
+        "ai_analyzer": {
+            "provider": "anthropic",  # anthropic / openai
+            "enabled": False,
         },
         "conversion": {
             "chapters_per_batch": 3,
@@ -190,9 +208,50 @@ def main() -> int:
         print(f"\n[WARNING] 仅检测到 {len(novel.chapters)} 个章节，建议提供 3 章以上的小说")
 
     # 步骤 2: 分析小说
-    print("\n[2/4] 分析角色和场景...")
-    analyzer = NovelAnalyzer()
-    analysis = analyzer.analyze(novel)
+    use_ai_analyze = args.ai_analyze or config.get("ai_analyzer", {}).get("enabled", False)
+
+    if use_ai_analyze:
+        print("\n[2/4] AI 分析角色和场景...")
+        print("   (使用 LLM API 进行智能分析，比本地规则更准确)")
+
+        # 获取 AI 分析配置
+        ai_cfg = config.get("ai_analyzer", {})
+        provider = ai_cfg.get("provider", "anthropic")
+
+        if provider == "anthropic":
+            api_key = args.api_key or config["anthropic"]["api_key"] or os.environ.get("ANTHROPIC_API_KEY")
+            model = args.model or config["anthropic"]["model"]
+            base_url = None
+        else:  # openai 兼容格式
+            api_key = config["openai"]["api_key"] or os.environ.get("OPENAI_API_KEY")
+            model = config["openai"]["model"]
+            base_url = config["openai"].get("base_url") or None
+
+        if not api_key:
+            print("\n[WARNING] 未设置 AI 分析所需的 API 密钥，回退到本地规则分析")
+            print("   请设置环境变量或通过 config.yaml 配置")
+            analyzer = NovelAnalyzer()
+            analysis = analyzer.analyze(novel)
+        else:
+            try:
+                analyzer = AINovelAnalyzer(
+                    api_key=api_key,
+                    model=model,
+                    max_tokens=config["anthropic"]["max_tokens"] if provider == "anthropic" else config["openai"]["max_tokens"],
+                    temperature=config["anthropic"]["temperature"] if provider == "anthropic" else config["openai"]["temperature"],
+                    provider=provider,
+                    base_url=base_url,
+                )
+                analysis = analyzer.analyze(novel)
+            except Exception as e:
+                print(f"\n[WARNING] AI 分析失败: {e}")
+                print("   回退到本地规则分析...")
+                analyzer = NovelAnalyzer()
+                analysis = analyzer.analyze(novel)
+    else:
+        print("\n[2/4] 本地规则分析角色和场景...")
+        analyzer = NovelAnalyzer()
+        analysis = analyzer.analyze(novel)
 
     print(f"   识别角色: {len(analysis['characters'])} 个")
     for char in analysis["characters"][:5]:

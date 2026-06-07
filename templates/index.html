@@ -5,93 +5,270 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 小说转剧本工具</title>
     <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-elevated: #22222e;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #f0f0f5;
+            --text-secondary: #8a8a9a;
+            --text-muted: #5a5a6a;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-dim: rgba(99, 102, 241, 0.15);
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --success: #22c55e;
+            --success-dim: rgba(34, 197, 94, 0.15);
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --error-dim: rgba(239, 68, 68, 0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #e0e0e0;
-            padding: 40px 20px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Subtle background texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.05), transparent);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            max-width: 960px;
+            max-width: 840px;
             margin: 0 auto;
+            padding: 48px 24px;
+            position: relative;
+            z-index: 1;
         }
 
+        /* Header */
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 48px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--accent-light);
+            font-weight: 500;
+            margin-bottom: 20px;
+            letter-spacing: 0.02em;
+        }
+
+        .header .badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-glow);
+            animation: pulse 2s ease-in-out infinite;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 0%, #a5a5b5 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
         }
 
         .header p {
-            color: #8892b0;
-            font-size: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.7;
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 28px;
-            margin-bottom: 24px;
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
+        /* Steps */
+        .step {
             margin-bottom: 20px;
+            animation: fadeInUp 0.5s ease-out backwards;
+        }
+
+        .step:nth-child(2) { animation-delay: 0.1s; }
+        .step:nth-child(3) { animation-delay: 0.2s; }
+        .step:nth-child(4) { animation-delay: 0.3s; }
+
+        .step-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 0 4px;
         }
 
+        .step-number {
+            width: 32px; height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 50%;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            transition: all var(--transition-base);
+        }
+
+        .step.active .step-number {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
+
+        .step.completed .step-number {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        .step-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .step-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            transition: all var(--transition-base);
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+        }
+
+        /* Upload Area */
         .upload-area {
-            border: 2px dashed rgba(233, 69, 96, 0.4);
-            border-radius: 12px;
-            padding: 48px 24px;
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 56px 24px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(233, 69, 96, 0.03);
+            transition: all var(--transition-base);
+            background: var(--bg-tertiary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, var(--accent-dim), transparent 70%);
+            opacity: 0;
+            transition: opacity var(--transition-base);
         }
 
         .upload-area:hover, .upload-area.dragover {
-            border-color: #e94560;
-            background: rgba(233, 69, 96, 0.08);
+            border-color: var(--accent);
+            background: var(--bg-elevated);
         }
 
-        .upload-area .icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
-            color: #e94560;
+        .upload-area:hover::before, .upload-area.dragover::before {
+            opacity: 1;
+        }
+
+        .upload-area > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-icon {
+            width: 56px; height: 56px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-dim);
+            border-radius: var(--radius-lg);
+            font-size: 1.5rem;
+            transition: transform var(--transition-base);
+        }
+
+        .upload-area:hover .upload-icon {
+            transform: translateY(-2px);
+        }
+
+        .upload-area h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
         }
 
         .upload-area p {
-            color: #8892b0;
-            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
         }
 
         .upload-area .filename {
-            color: #e94560;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: var(--success-dim);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 100px;
+            color: var(--success);
+            font-size: 0.85rem;
             font-weight: 500;
-            margin-top: 8px;
+            animation: fadeInUp 0.3s ease-out;
         }
 
         input[type="file"] { display: none; }
 
+        /* Form */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -101,252 +278,492 @@
 
         @media (max-width: 600px) {
             .form-row { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2rem; }
+            .container { padding: 32px 16px; }
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
-            color: #8892b0;
-            margin-bottom: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .form-group input, .form-group select {
             width: 100%;
             padding: 12px 14px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all var(--transition-fast);
         }
 
         .form-group input:focus, .form-group select:focus {
-            border-color: #e94560;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
         }
 
         .form-group input::placeholder {
-            color: #555;
+            color: var(--text-muted);
         }
 
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+        .form-group select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
-        .btn {
-            padding: 12px 28px;
-            border-radius: 8px;
-            border: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #e94560, #c23a51);
-            color: #fff;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .btn:disabled {
+        .form-group select:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .btn:hover::after {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05) inset;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--accent-glow), 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--bg-tertiary);
+            border-color: var(--border-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px 16px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all var(--transition-base);
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
         }
 
         .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #e94560;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--accent-light);
+            line-height: 1.2;
+            margin-bottom: 4px;
         }
 
         .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* YAML Preview */
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .preview-header span {
             font-size: 0.8rem;
-            color: #8892b0;
-            margin-top: 4px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .yaml-preview {
-            background: #0d1117;
-            border-radius: 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
             padding: 20px;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            font-size: 0.85rem;
-            line-height: 1.6;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
             overflow-x: auto;
-            max-height: 500px;
+            max-height: 480px;
             overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-word;
-            color: #c9d1d9;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
         }
 
-        .yaml-preview .key { color: #7ee787; }
-        .yaml-preview .string { color: #a5d6ff; }
-        .yaml-preview .number { color: #79c0ff; }
-        .yaml-preview .comment { color: #8b949e; }
+        .yaml-preview::-webkit-scrollbar {
+            width: 8px; height: 8px;
+        }
 
-        .hidden { display: none !important; }
+        .yaml-preview::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
+        .yaml-preview::-webkit-scrollbar-thumb {
+            background: var(--bg-elevated);
+            border-radius: 4px;
+        }
+
+        .yaml-preview::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+        /* Tags */
+        .tag-group {
+            margin-top: 20px;
+        }
+
+        .tag-group-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 3px;
+            transition: all var(--transition-fast);
+            cursor: default;
+        }
+
+        .tag:hover {
+            transform: translateY(-1px);
+        }
+
+        .tag-main {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .tag-supporting {
+            background: rgba(34, 197, 94, 0.12);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .tag-minor {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInDown 0.3s ease-out;
+            border: 1px solid transparent;
+        }
+
+        .alert-error {
+            background: var(--error-dim);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #93c5fd;
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .alert-success {
+            background: var(--success-dim);
+            color: #86efac;
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        /* Loading */
         .loading {
             display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
             border-top-color: #fff;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .tag {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            margin: 2px;
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .tag-main { background: rgba(233, 69, 96, 0.2); color: #e94560; }
-        .tag-supporting { background: rgba(121, 192, 255, 0.2); color: #79c0ff; }
-        .tag-minor { background: rgba(139, 148, 158, 0.2); color: #8b949e; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+
+        .divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 24px 0;
+        }
 
         .footer {
             text-align: center;
-            color: #555;
+            color: var(--text-muted);
             font-size: 0.8rem;
-            margin-top: 40px;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
         }
 
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 0.9rem;
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color var(--transition-fast);
         }
 
-        .alert-error {
-            background: rgba(233, 69, 96, 0.15);
-            border: 1px solid rgba(233, 69, 96, 0.3);
-            color: #e94560;
+        .footer a:hover {
+            color: var(--accent-light);
         }
 
-        .alert-info {
-            background: rgba(121, 192, 255, 0.15);
-            border: 1px solid rgba(121, 192, 255, 0.3);
-            color: #79c0ff;
+        /* Section transition */
+        .section-enter {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Mode badge in select */
+        .mode-note {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mode-note svg, .mode-note .icon {
+            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>AI 小说转剧本工具</h1>
-            <p>将小说文本自动转换为结构化剧本（YAML 格式）</p>
+            <div class="badge">AI 驱动的剧本转换</div>
+            <h1>小说转剧本工具</h1>
+            <p>将小说文本自动转换为结构化剧本，支持角色提取、场景分割、YAML 输出</p>
         </div>
 
-        <div class="card">
-            <div class="card-title">1. 上传小说文件</div>
-            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-                <div class="icon">&#128196;</div>
-                <p>点击选择或拖拽文件到此处</p>
-                <p style="font-size:0.8rem; margin-top:4px;">支持 .txt 格式，建议 3 章以上</p>
-                <div class="filename hidden" id="filename"></div>
-            </div>
-            <input type="file" id="fileInput" accept=".txt,.md">
-        </div>
-
-        <div class="card">
-            <div class="card-title">2. 配置选项</div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>小说标题</label>
-                    <input type="text" id="title" placeholder="自动检测">
-                </div>
-                <div class="form-group">
-                    <label>作者</label>
-                    <input type="text" id="author" placeholder="自动检测">
+        <!-- Step 1: Upload -->
+        <div class="step active" id="step1">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>
+                    <div class="step-title">上传小说文件</div>
+                    <div class="step-desc">选择 .txt 格式的小说文本文件</div>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>转换模式</label>
-                    <select id="mode">
-                        <option value="local">本地模式（无需API，快速转换）</option>
-                        <option value="ai" disabled title="请在服务器配置 API 密钥后使用">AI模式（需要Claude API密钥，质量更高）</option>
-                    </select>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button class="btn btn-secondary" id="analyzeBtn" onclick="analyzeFile()" disabled>
-                    <span>&#128269;</span> 仅分析结构
-                </button>
-                <button class="btn btn-primary" id="convertBtn" onclick="convertFile()" disabled>
-                    <span id="convertSpinner" class="loading hidden"></span>
-                    <span id="convertText">开始转换</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="analyzeResult" class="hidden">
             <div class="card">
-                <div class="card-title">&#128202; 小说分析结果</div>
-                <div class="stats-grid" id="analyzeStats"></div>
-                <div id="analyzeDetails"></div>
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">&#8593;</div>
+                    <h3>拖拽文件到此处，或点击选择</h3>
+                    <p>支持 .txt / .md 格式，建议 3 个章节以上以获得最佳效果</p>
+                    <div class="filename hidden" id="filename"></div>
+                </div>
+                <input type="file" id="fileInput" accept=".txt,.md">
             </div>
         </div>
 
-        <div id="convertResult" class="hidden">
-            <div class="card">
-                <div class="card-title">&#127912; 转换结果</div>
-                <div class="stats-grid" id="convertStats"></div>
-                <div class="btn-group" style="margin-bottom:16px;">
-                    <button class="btn btn-primary" onclick="downloadFile()">&#11015; 下载 YAML</button>
+        <!-- Step 2: Configure -->
+        <div class="step" id="step2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>
+                    <div class="step-title">配置转换选项</div>
+                    <div class="step-desc">设置小说信息和转换模式</div>
                 </div>
-                <div class="yaml-preview" id="yamlPreview"></div>
+            </div>
+            <div class="card">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>小说标题</label>
+                        <input type="text" id="title" placeholder="留空自动检测">
+                    </div>
+                    <div class="form-group">
+                        <label>作者</label>
+                        <input type="text" id="author" placeholder="留空自动检测">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>转换模式</label>
+                        <select id="mode">
+                            <option value="local">本地模式 — 基于规则快速转换</option>
+                            <option value="ai" disabled>AI 模式 — 调用 Claude API（需配置密钥）</option>
+                        </select>
+                        <div class="mode-note">
+                            <span style="color: var(--accent-light);">&#9432;</span>
+                            当前使用本地模式，无需 API 密钥即可转换
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>分析模式</label>
+                        <select id="analyzeMode">
+                            <option value="local">本地规则分析 — 基于正则匹配</option>
+                            <option value="ai">AI 智能分析 — 调用 LLM API（更准确，需密钥）</option>
+                        </select>
+                        <div class="mode-note">
+                            <span style="color: var(--accent-light);">&#9432;</span>
+                            AI 分析能更准确识别角色和地点，但需要配置 API 密钥
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="analyzeBtn" onclick="analyzeFile()" disabled>
+                        <span>&#128202;</span> 分析结构
+                    </button>
+                    <button class="btn btn-primary" id="convertBtn" onclick="convertFile()" disabled>
+                        <span id="convertSpinner" class="loading hidden"></span>
+                        <span id="convertText">开始转换</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div id="analyzeResult" class="hidden section-enter">
+            <div class="step active">
+                <div class="step-header">
+                    <div class="step-number">&#10003;</div>
+                    <div>
+                        <div class="step-title">小说分析结果</div>
+                        <div class="step-desc">已识别的角色、地点和结构信息</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="stats-grid" id="analyzeStats"></div>
+                    <div id="analyzeDetails"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversion Results -->
+        <div id="convertResult" class="hidden section-enter">
+            <div class="step active">
+                <div class="step-header">
+                    <div class="step-number">&#10003;</div>
+                    <div>
+                        <div class="step-title">转换成功</div>
+                        <div class="step-desc">剧本已生成，可预览或下载</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="stats-grid" id="convertStats"></div>
+                    <div class="btn-group" style="margin-bottom:20px;">
+                        <button class="btn btn-primary" onclick="downloadFile()">
+                            <span>&#11015;</span> 下载 YAML 剧本
+                        </button>
+                    </div>
+                    <div class="preview-header">
+                        <span>YAML 预览</span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">滚动查看更多</span>
+                    </div>
+                    <div class="yaml-preview" id="yamlPreview"></div>
+                </div>
             </div>
         </div>
 
         <div class="footer">
-            AI 小说转剧本工具 v1.0 | YAML Schema v1.0
+            AI 小说转剧本工具 v1.0 &middot; 七牛云 x XEngineer 暑期实训营
         </div>
     </div>
 
@@ -362,10 +779,15 @@
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 currentFile = e.target.files[0];
-                filename.textContent = currentFile.name;
+                filename.innerHTML = `<span>&#10003;</span> ${currentFile.name}`;
                 filename.classList.remove('hidden');
                 analyzeBtn.disabled = false;
                 convertBtn.disabled = false;
+
+                // Mark step 1 completed, step 2 active
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
             }
         });
 
@@ -384,32 +806,51 @@
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 currentFile = files[0];
-                filename.textContent = currentFile.name;
+                filename.innerHTML = `<span>&#10003;</span> ${currentFile.name}`;
                 filename.classList.remove('hidden');
                 analyzeBtn.disabled = false;
                 convertBtn.disabled = false;
+
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
             }
         });
 
         function showAlert(message, type) {
+            // Remove existing alerts
+            document.querySelectorAll('.alert').forEach(a => a.remove());
+
             const div = document.createElement('div');
             div.className = `alert alert-${type}`;
-            div.textContent = message;
-            document.querySelector('.container').insertBefore(div, document.querySelector('.container').children[1]);
-            setTimeout(() => div.remove(), 4000);
+            const icon = type === 'error' ? '&#9888;' : type === 'success' ? '&#10003;' : '&#9432;';
+            div.innerHTML = `<span>${icon}</span> ${message}`;
+            const container = document.querySelector('.container');
+            container.insertBefore(div, container.children[1]);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(-8px)';
+                div.style.transition = 'all 300ms ease';
+                setTimeout(() => div.remove(), 300);
+            }, 4500);
         }
 
         async function analyzeFile() {
             if (!currentFile) return;
             analyzeBtn.disabled = true;
+            const originalText = analyzeBtn.innerHTML;
+            analyzeBtn.innerHTML = '<span class="loading"></span> 分析中...';
 
             const formData = new FormData();
             formData.append('file', currentFile);
+            formData.append('ai_analyze', document.getElementById('analyzeMode').value === 'ai');
 
             try {
                 const res = await fetch('/api/analyze', { method: 'POST', body: formData });
                 const data = await res.json();
+
                 analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = originalText;
 
                 if (data.error) {
                     showAlert(data.error, 'error');
@@ -418,27 +859,43 @@
 
                 const stats = document.getElementById('analyzeStats');
                 stats.innerHTML = `
-                    <div class="stat-card"><div class="stat-value">${data.chapters}</div><div class="stat-label">章节数</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.word_count}</div><div class="stat-label">总字数</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.characters.length}</div><div class="stat-label">角色数</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.locations.length}</div><div class="stat-label">地点数</div></div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.chapters}</div>
+                        <div class="stat-label">章节</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.word_count.toLocaleString()}</div>
+                        <div class="stat-label">字数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.characters.length}</div>
+                        <div class="stat-label">角色</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.locations.length}</div>
+                        <div class="stat-label">地点</div>
+                    </div>
                 `;
 
                 const details = document.getElementById('analyzeDetails');
                 details.innerHTML = `
-                    <div style="margin-top:16px;">
-                        <div style="font-size:0.85rem;color:#8892b0;margin-bottom:8px;">主要角色</div>
+                    <div class="divider"></div>
+                    <div class="tag-group">
+                        <div class="tag-group-label">主要角色</div>
                         <div>${data.characters.map(c => `<span class="tag tag-${c.importance}">${c.name}</span>`).join('')}</div>
                     </div>
-                    <div style="margin-top:16px;">
-                        <div style="font-size:0.85rem;color:#8892b0;margin-bottom:8px;">主要地点</div>
+                    <div class="tag-group">
+                        <div class="tag-group-label">主要地点</div>
                         <div>${data.locations.map(l => `<span class="tag tag-minor">${l}</span>`).join('')}</div>
                     </div>
                 `;
 
-                document.getElementById('analyzeResult').classList.remove('hidden');
+                const resultEl = document.getElementById('analyzeResult');
+                resultEl.classList.remove('hidden');
+                resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (err) {
                 analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = originalText;
                 showAlert('分析失败: ' + err.message, 'error');
             }
         }
@@ -462,6 +919,7 @@
             formData.append('title', document.getElementById('title').value);
             formData.append('author', document.getElementById('author').value);
             formData.append('mode', mode);
+            formData.append('ai_analyze', document.getElementById('analyzeMode').value === 'ai');
 
             try {
                 const res = await fetch('/api/convert', { method: 'POST', body: formData });
@@ -478,18 +936,32 @@
 
                 const stats = document.getElementById('convertStats');
                 stats.innerHTML = `
-                    <div class="stat-card"><div class="stat-value">${data.stats.acts}</div><div class="stat-label">幕数</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.stats.scenes}</div><div class="stat-label">场景数</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.stats.characters}</div><div class="stat-label">角色数</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.stats.chapters}</div><div class="stat-label">原章节数</div></div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.stats.acts}</div>
+                        <div class="stat-label">幕</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.stats.scenes}</div>
+                        <div class="stat-label">场景</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.stats.characters}</div>
+                        <div class="stat-label">角色</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.stats.word_count.toLocaleString()}</div>
+                        <div class="stat-label">原字数</div>
+                    </div>
                 `;
 
                 downloadUrl = data.download_url;
                 document.getElementById('yamlPreview').textContent = data.yaml;
-                document.getElementById('convertResult').classList.remove('hidden');
 
-                // Scroll to result
-                document.getElementById('convertResult').scrollIntoView({ behavior: 'smooth' });
+                const resultEl = document.getElementById('convertResult');
+                resultEl.classList.remove('hidden');
+                resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                showAlert('剧本转换成功！', 'success');
             } catch (err) {
                 convertBtn.disabled = false;
                 document.getElementById('convertSpinner').classList.add('hidden');
