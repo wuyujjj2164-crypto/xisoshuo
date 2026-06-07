@@ -36,18 +36,18 @@ ANALYSIS_PROMPT = """你是一位资深文学分析师，擅长分析小说文�
 请严格按以下 JSON 格式输出，不要添加任何解释文字：
 
 ```json
-{
+{{
   "characters": [
-    {"name": "角色A", "importance": "main", "description": "省报记者，好奇心强"},
-    {"name": "角色B", "importance": "supporting", "description": "客栈老板，知道镇上秘密"}
+    {{"name": "角色A", "importance": "main", "description": "省报记者，好奇心强"}},
+    {{"name": "角色B", "importance": "supporting", "description": "客栈老板，知道镇上秘密"}}
   ],
   "locations": [
-    {"name": "镇口"},
-    {"name": "客栈"},
-    {"name": "老宅"}
+    {{"name": "镇口"}},
+    {{"name": "客栈"}},
+    {{"name": "老宅"}}
   ],
   "timeline": ["清晨", "深夜", "第二天"]
-}
+}}
 ```
 
 ## 小说内容
@@ -75,15 +75,15 @@ BATCH_ANALYSIS_PROMPT = """你是一位资深文学分析师。请分析以下�
 ## 输出格式（严格 JSON，不要解释）
 
 ```json
-{
+{{
   "characters": [
-    {"name": "...", "importance": "main|supporting|minor", "description": "..."}
+    {{"name": "...", "importance": "main|supporting|minor", "description": "..."}}
   ],
   "locations": [
-    {"name": "..."}
+    {{"name": "..."}}
   ],
   "timeline": ["..."]
-}
+}}
 ```
 
 ## 章节内容
