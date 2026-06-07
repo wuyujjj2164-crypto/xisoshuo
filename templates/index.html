@@ -686,11 +686,11 @@
                         <label>转换模式</label>
                         <select id="mode">
                             <option value="local">本地模式 — 基于规则快速转换</option>
-                            <option value="ai">AI 模式 — 调用 Claude API（质量更高，需密钥）</option>
+                            <option value="ai">AI 模式 — 调用 LLM API（质量更高，需密钥）</option>
                         </select>
                         <div class="mode-note">
                             <span style="color: var(--accent-light);">&#9432;</span>
-                            本地模式无需 API 密钥，AI 模式需要输入下方密钥
+                            AI 模式使用你选择的 LLM 提供商生成剧本
                         </div>
                     </div>
                 </div>
@@ -718,6 +718,24 @@
                         <div class="mode-note">
                             <span style="color: var(--accent-light);">&#9432;</span>
                             选择你的 API 密钥对应的提供商
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Base URL <span style="color:var(--text-muted);font-weight:400;">(可选，自定义接口地址)</span></label>
+                        <input type="text" id="baseUrl" placeholder="https://api.deepseek.com/v1">
+                        <div class="mode-note">
+                            <span style="color: var(--accent-light);">&#9432;</span>
+                            仅在使用 DeepSeek 等自定义接口时填写，Anthropic / Kimi 可留空
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>模型名称 <span style="color:var(--text-muted);font-weight:400;">(可选，默认自动选择)</span></label>
+                        <input type="text" id="modelName" placeholder="例如 deepseek-v4-pro">
+                        <div class="mode-note">
+                            <span style="color: var(--accent-light);">&#9432;</span>
+                            DeepSeek 需填 deepseek-v4-pro 或 deepseek-v4-flash
                         </div>
                     </div>
                 </div>
@@ -872,6 +890,14 @@
             if (apiKey) {
                 formData.append('api_key', apiKey);
                 formData.append('provider', document.getElementById('provider').value);
+                const baseUrl = document.getElementById('baseUrl').value;
+                if (baseUrl) {
+                    formData.append('base_url', baseUrl);
+                }
+                const modelName = document.getElementById('modelName').value;
+                if (modelName) {
+                    formData.append('model', modelName);
+                }
             }
 
             try {
@@ -937,11 +963,6 @@
             if (!currentFile) return;
 
             const mode = document.getElementById('mode').value;
-            if (mode === 'ai') {
-                showAlert('AI模式需要配置API密钥，请先使用本地模式', 'error');
-                document.getElementById('mode').value = 'local';
-                return;
-            }
 
             convertBtn.disabled = true;
             document.getElementById('convertSpinner').classList.remove('hidden');
@@ -957,6 +978,14 @@
             if (apiKey) {
                 formData.append('api_key', apiKey);
                 formData.append('provider', document.getElementById('provider').value);
+                const baseUrl = document.getElementById('baseUrl').value;
+                if (baseUrl) {
+                    formData.append('base_url', baseUrl);
+                }
+                const modelName = document.getElementById('modelName').value;
+                if (modelName) {
+                    formData.append('model', modelName);
+                }
             }
 
             try {

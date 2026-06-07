@@ -1,7 +1,7 @@
 """
 AI 剧本转换引擎
 
-调用 Anthropic Claude API，将小说文本转换为结构化剧本。
+调用 LLM API（Claude / DeepSeek / 通义千问等），将小说文本转换为结构化剧本。
 核心功能：场景分割、叙述转对白、动作提取、格式化输出。
 """
 
@@ -10,7 +10,6 @@ import os
 from typing import Any
 
 import yaml
-from anthropic import Anthropic
 
 from .models import Act, Character, Metadata, Scene, SceneElement, Screenplay
 
@@ -116,7 +115,8 @@ class ScriptConverter:
     """
     剧本转换引擎
 
-    使用 Claude API 将小说分析结果转换为结构化剧本。
+    使用 LLM API 将小说分析结果转换为结构化剧本。
+    支持 Anthropic Claude 和 OpenAI 兼容格式的 API（DeepSeek、通义千问等）。
     支持分批处理长文本，避免超出 token 限制。
     """
 
@@ -127,28 +127,63 @@ class ScriptConverter:
         max_tokens: int = 4096,
         temperature: float = 0.3,
         chapters_per_batch: int = 3,
+        provider: str = "anthropic",
+        base_url: str | None = None,
     ):
         """
         初始化转换器
 
         Args:
-            api_key: Anthropic API 密钥（默认从环境变量读取）
+            api_key: API 密钥（默认从环境变量读取）
             model: 使用的模型名称
             max_tokens: 单次请求最大输出 token 数
             temperature: 创造性程度 (0.0-1.0)
             chapters_per_batch: 每批处理的章节数
+            provider: API 提供商，可选 "anthropic" / "openai"
+            base_url: OpenAI 兼容 API 的基础 URL（如 DeepSeek、通义千问）
         """
-        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
-        if not self.api_key:
-            raise ValueError(
-                "必须提供 API 密钥或通过 ANTHROPIC_API_KEY 环境变量设置"
-            )
-
-        self.client = Anthropic(api_key=self.api_key)
+        self.provider = provider.lower()
         self.model = model
         self.max_tokens = max_tokens
         self.temperature = temperature
         self.chapters_per_batch = chapters_per_batch
+        self.base_url = base_url
+
+        # 初始化 API 客户端
+        if self.provider == "anthropic":
+            self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+            if not self.api_key:
+                raise ValueError(
+                    "必须提供 API 密钥或通过 ANTHROPIC_API_KEY 环境变量设置"
+                )
+            try:
+                from anthropic import Anthropic
+                self.client = Anthropic(api_key=self.api_key)
+            except ImportError:
+                raise ImportError(
+                    "使用 Anthropic 需要先安装: pip install anthropic"
+                )
+
+        elif self.provider in ("openai", "kimi"):
+            # Kimi 使用 OpenAI 兼容格式
+            env_var = "MOONSHOT_API_KEY" if self.provider == "kimi" else "OPENAI_API_KEY"
+            self.api_key = api_key or os.environ.get(env_var)
+            if not self.api_key:
+                raise ValueError(
+                    f"必须提供 API 密钥或通过 {env_var} 环境变量设置"
+                )
+            try:
+                import openai
+                self.client = openai.OpenAI(
+                    api_key=self.api_key,
+                    base_url=base_url,
+                )
+            except ImportError:
+                raise ImportError(
+                    "使用 OpenAI 兼容 API 需要先安装: pip install openai"
+                )
+        else:
+            raise ValueError(f"不支持的 provider: {provider}，可选: anthropic, openai, kimi")
 
     def convert(
         self,
@@ -215,30 +250,31 @@ class ScriptConverter:
         )
 
     def _call_api(self, prompt: str) -> str:
-        """
-        调用 Claude API
+        """调用 LLM API"""
+        if self.provider == "anthropic":
+            return self._call_anthropic(prompt)
+        else:
+            return self._call_openai(prompt)
 
-        Args:
-            prompt: 完整的提示词
+    def _call_anthropic(self, prompt: str) -> str:
+        """调用 Anthropic Claude API"""
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=self.max_tokens,
+            temperature=self.temperature,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.content[0].text
 
-        Returns:
-            API 响应文本
-        """
-        try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                temperature=self.temperature,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
-            )
-            return message.content[0].text
-        except Exception as e:
-            raise RuntimeError(f"API 调用失败: {e}") from e
+    def _call_openai(self, prompt: str) -> str:
+        """调用 OpenAI 兼容 API（DeepSeek、通义千问等）"""
+        response = self.client.chat.completions.create(
+            model=self.model,
+            max_tokens=self.max_tokens,
+            temperature=self.temperature,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.choices[0].message.content
 
     def _parse_response(self, response: str) -> dict[str, Any] | None:
         """
