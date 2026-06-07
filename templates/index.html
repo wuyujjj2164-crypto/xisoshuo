@@ -707,13 +707,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-row" id="apiKeyRow">
+                <div class="form-row">
                     <div class="form-group">
-                        <label>API 密钥 <span style="color:var(--text-muted);font-weight:400;">(仅 AI 模式需要)</span></label>
-                        <input type="password" id="apiKey" placeholder="输入 Anthropic / OpenAI API 密钥">
+                        <label>API 密钥 <span style="color:var(--text-muted);font-weight:400;">(AI 模式需要)</span></label>
+                        <input type="password" id="apiKey" placeholder="输入 Anthropic / OpenAI / DeepSeek API 密钥">
                         <div class="mode-note">
                             <span style="color: var(--accent-light);">&#9432;</span>
-                            密钥仅在本次请求中使用，不会保存到服务器
+                            仅在本次请求中使用，不会保存。留空则使用本地规则。
                         </div>
                     </div>
                 </div>
@@ -783,20 +783,8 @@
         const filename = document.getElementById('filename');
         const analyzeBtn = document.getElementById('analyzeBtn');
         const convertBtn = document.getElementById('convertBtn');
-        const modeSelect = document.getElementById('mode');
-        const analyzeModeSelect = document.getElementById('analyzeMode');
-        const apiKeyRow = document.getElementById('apiKeyRow');
         let currentFile = null;
         let downloadUrl = '';
-
-        // 根据模式选择显示/隐藏 API 密钥输入框
-        function updateApiKeyVisibility() {
-            const needsKey = modeSelect.value === 'ai' || analyzeModeSelect.value === 'ai';
-            apiKeyRow.style.display = needsKey ? '' : 'none';
-        }
-        modeSelect.addEventListener('change', updateApiKeyVisibility);
-        analyzeModeSelect.addEventListener('change', updateApiKeyVisibility);
-        updateApiKeyVisibility(); // 初始状态
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
