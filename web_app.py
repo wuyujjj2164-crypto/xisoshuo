@@ -16,6 +16,7 @@ from novel_to_script.analyzer import NovelAnalyzer
 from novel_to_script.formatter import YAMLFormatter
 from novel_to_script.local_converter import LocalConverter
 from novel_to_script.parser import NovelParser
+from novel_to_script.converter import ScriptConverter
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB
@@ -44,7 +45,7 @@ def _is_safe_path(path: str) -> bool:
     return abs_path.startswith(abs_tmp + os.sep) or abs_path == abs_tmp
 
 
-def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = ""):
+def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = "", base_url: str = "", model: str = ""):
     """
     获取分析器实例
     ai_mode=True 时尝试使用 AI 分析器
@@ -69,31 +70,76 @@ def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = ""):
             provider = "openai"
 
     # 模型和 base_url 配置
-    model = "claude-sonnet-4-6"
-    base_url = None
+    resolved_base_url = None
 
-    if provider == "anthropic":
-        model = "claude-sonnet-4-6"
+    # 用户自定义 model 优先
+    if model:
+        resolved_model = model
+    elif provider == "anthropic":
+        resolved_model = "claude-sonnet-4-6"
     elif provider == "kimi":
-        model = "moonshot-v1-32k"
-        base_url = "https://api.moonshot.cn/v1"
+        resolved_model = "moonshot-v1-32k"
+        resolved_base_url = "https://api.moonshot.cn/v1"
     else:
-        # openai 兼容格式，尝试从环境变量读取 base_url
-        model = "gpt-4o"
-        base_url = os.environ.get("OPENAI_BASE_URL")
+        resolved_model = "gpt-4o"
+
+    if provider != "kimi":
+        # openai 兼容格式：优先使用前端传入的 base_url，其次环境变量
+        resolved_base_url = base_url or os.environ.get("OPENAI_BASE_URL")
 
     try:
         analyzer = AINovelAnalyzer(
             api_key=key,
-            model=model,
+            model=resolved_model,
             provider=provider,
-            base_url=base_url,
+            base_url=resolved_base_url,
         )
         return analyzer, None
     except ImportError as e:
         return NovelAnalyzer(), f"AI 分析依赖未安装: {e}"
     except Exception as e:
         return NovelAnalyzer(), f"AI 分析器初始化失败: {e}"
+
+
+def _get_script_converter(api_key: str = "", provider: str = "", base_url: str = "", model: str = ""):
+    """
+    获取 AI 剧本转换器实例
+    """
+    # 优先使用前端传入的密钥，其次环境变量
+    key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("MOONSHOT_API_KEY")
+    if not key:
+        raise ValueError("未提供 API 密钥")
+
+    # 确定 provider
+    provider = (provider or "").lower()
+    if not provider:
+        if key.startswith("sk-ant-"):
+            provider = "anthropic"
+        else:
+            provider = "openai"
+
+    # 模型和 base_url 配置
+    resolved_base_url = None
+
+    if model:
+        resolved_model = model
+    elif provider == "anthropic":
+        resolved_model = "claude-sonnet-4-6"
+    elif provider == "kimi":
+        resolved_model = "moonshot-v1-32k"
+        resolved_base_url = "https://api.moonshot.cn/v1"
+    else:
+        resolved_model = "gpt-4o"
+
+    if provider != "kimi":
+        resolved_base_url = base_url or os.environ.get("OPENAI_BASE_URL")
+
+    return ScriptConverter(
+        api_key=key,
+        model=resolved_model,
+        provider=provider,
+        base_url=resolved_base_url,
+    )
 
 
 @app.route("/")
@@ -134,7 +180,9 @@ def convert():
     ai_analyze = request.form.get("ai_analyze", "false").lower() == "true"
     api_key = request.form.get("api_key", "")
     provider = request.form.get("provider", "")
-    analyzer, ai_error = _get_analyzer(ai_mode=ai_analyze, api_key=api_key, provider=provider)
+    base_url = request.form.get("base_url", "")
+    model = request.form.get("model", "")
+    analyzer, ai_error = _get_analyzer(ai_mode=ai_analyze, api_key=api_key, provider=provider, base_url=base_url, model=model)
 
     try:
         analysis = analyzer.analyze(novel)
@@ -155,7 +203,30 @@ def convert():
             author=author or novel.author,
         )
     else:
-        return jsonify({"error": "AI模式需要配置API密钥，当前仅支持本地模式"}), 400
+        # AI 模式：使用 ScriptConverter 调用 LLM 生成剧本
+        try:
+            converter = _get_script_converter(
+                api_key=api_key,
+                provider=provider,
+                base_url=base_url,
+                model=model,
+            )
+            screenplay = converter.convert(
+                chapters=novel.chapters,
+                characters=analysis["characters"],
+                title=title or novel.title,
+                author=author or novel.author,
+            )
+        except Exception as e:
+            # AI 转换失败，回退到本地转换并提示
+            converter = LocalConverter()
+            screenplay = converter.convert(
+                chapters=novel.chapters,
+                characters=analysis["characters"],
+                title=title or novel.title,
+                author=author or novel.author,
+            )
+            ai_error = f"AI 剧本生成失败: {str(e)}，已回退到本地转换"
 
     # 步骤4: 格式化
     formatter = YAMLFormatter()
@@ -234,7 +305,9 @@ def analyze():
     ai_mode = request.form.get("ai_analyze", "false").lower() == "true"
     api_key = request.form.get("api_key", "")
     provider = request.form.get("provider", "")
-    analyzer, ai_error = _get_analyzer(ai_mode=ai_mode, api_key=api_key, provider=provider)
+    base_url = request.form.get("base_url", "")
+    model = request.form.get("model", "")
+    analyzer, ai_error = _get_analyzer(ai_mode=ai_mode, api_key=api_key, provider=provider, base_url=base_url, model=model)
 
     try:
         analysis = analyzer.analyze(novel)
