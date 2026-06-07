@@ -386,6 +386,12 @@
             border-color: var(--border-hover);
         }
 
+        .preview-active {
+            background: var(--accent) !important;
+            color: #fff !important;
+            border-color: var(--accent) !important;
+        }
+
         .btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -801,8 +807,8 @@
                     <div class="preview-header">
                         <span id="previewLabel">YAML 预览</span>
                         <div style="display:flex; gap:8px; align-items:center;">
-                            <button class="btn btn-secondary" style="padding:4px 12px; font-size:0.75rem;" onclick="switchPreview('yaml')">YAML</button>
-                            <button class="btn btn-secondary" style="padding:4px 12px; font-size:0.75rem;" onclick="switchPreview('text')">标准剧本</button>
+                            <button id="btnPreviewYaml" class="btn btn-secondary preview-active" style="padding:4px 12px; font-size:0.75rem;" onclick="switchPreview('yaml')">YAML</button>
+                            <button id="btnPreviewText" class="btn btn-secondary" style="padding:4px 12px; font-size:0.75rem;" onclick="switchPreview('text')">标准剧本</button>
                         </div>
                     </div>
                     <div class="yaml-preview" id="yamlPreview"></div>
@@ -1063,14 +1069,20 @@
             const yamlPreview = document.getElementById('yamlPreview');
             const textPreview = document.getElementById('textPreview');
             const label = document.getElementById('previewLabel');
+            const btnYaml = document.getElementById('btnPreviewYaml');
+            const btnText = document.getElementById('btnPreviewText');
             if (type === 'text') {
                 yamlPreview.classList.add('hidden');
                 textPreview.classList.remove('hidden');
                 label.textContent = '标准剧本预览';
+                btnText.classList.add('preview-active');
+                btnYaml.classList.remove('preview-active');
             } else {
                 textPreview.classList.add('hidden');
                 yamlPreview.classList.remove('hidden');
                 label.textContent = 'YAML 预览';
+                btnYaml.classList.add('preview-active');
+                btnText.classList.remove('preview-active');
             }
         }
     </script>
