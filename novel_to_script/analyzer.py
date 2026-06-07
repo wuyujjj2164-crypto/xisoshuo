@@ -561,7 +561,10 @@ class NovelAnalyzer:
             ending = paragraphs[-1][:200] if paragraphs else ""
 
             # 统计本章对话比例（匹配弯引号和直引号，计算字符总数而非段数）
-            dialogue_matches = re.findall(r'[""""""]([^""""""]{0,500})[""""""]', ch.content)
+            _quotes = '"“”‘’「」'
+            dialogue_matches = re.findall(
+                f'[{_quotes}]([^{_quotes}]{{0,500}})[{_quotes}]', ch.content
+            )
             dialogue_chars = sum(len(m) for m in dialogue_matches)
             total_chars = len(ch.content)
             dialogue_ratio = dialogue_chars / total_chars if total_chars > 0 else 0

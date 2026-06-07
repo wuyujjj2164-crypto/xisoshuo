@@ -15,6 +15,7 @@ from novel_to_script.ai_analyzer import AINovelAnalyzer
 from novel_to_script.analyzer import NovelAnalyzer
 from novel_to_script.formatter import ScreenplayFormatter, YAMLFormatter
 from novel_to_script.local_converter import LocalConverter
+from novel_to_script.models import Character, CharacterImportance
 from novel_to_script.parser import NovelParser
 from novel_to_script.converter import ScriptConverter
 
@@ -43,6 +44,41 @@ def _is_safe_path(path: str) -> bool:
     abs_tmp = os.path.abspath(TMP_DIR)
     # 确保路径以 TMP_DIR 开头
     return abs_path.startswith(abs_tmp + os.sep) or abs_path == abs_tmp
+
+
+def _normalize_characters(raw_chars: list) -> list[Character]:
+    """
+    统一角色格式
+
+    NovelAnalyzer 返回 Character 对象列表，
+    AINovelAnalyzer 返回 dict 列表。
+    统一转换为 Character 对象列表。
+    """
+    result = []
+    for i, c in enumerate(raw_chars):
+        if isinstance(c, Character):
+            result.append(c)
+        elif isinstance(c, dict):
+            # 从 dict 重建 Character 对象
+            importance_str = c.get("importance", "supporting")
+            if isinstance(importance_str, str):
+                importance = CharacterImportance(importance_str)
+            else:
+                importance = importance_str
+            result.append(
+                Character(
+                    id=c.get("id", f"char_{i:03d}"),
+                    name=c["name"],
+                    description=c.get("description", ""),
+                    importance=importance,
+                    aliases=c.get("aliases", []),
+                    traits=c.get("traits", []),
+                    age=c.get("age", ""),
+                    gender=c.get("gender", ""),
+                    notes=c.get("notes", ""),
+                )
+            )
+    return result
 
 
 def _resolve_ai_config(api_key: str = "", provider: str = "", base_url: str = "", model: str = ""):
@@ -172,6 +208,9 @@ def convert():
     except Exception as e:
         return jsonify({"error": f"AI 分析失败: {str(e)}"}), 500
 
+    # 统一角色格式（AI分析器返回dict，本地分析器返回Character对象）
+    characters = _normalize_characters(analysis.get("characters", []))
+
     # 如果用户要求 AI 分析但失败了，显示警告
     if ai_analyze and ai_error and not isinstance(analyzer, AINovelAnalyzer):
         pass  # 继续用本地规则，但结果中会包含 ai_error
@@ -181,7 +220,7 @@ def convert():
         converter = LocalConverter()
         screenplay = converter.convert(
             chapters=novel.chapters,
-            characters=analysis["characters"],
+            characters=characters,
             title=title or novel.title,
             author=author or novel.author,
         )
@@ -196,7 +235,7 @@ def convert():
             )
             screenplay = converter.convert(
                 chapters=novel.chapters,
-                characters=analysis["characters"],
+                characters=characters,
                 title=title or novel.title,
                 author=author or novel.author,
             )
@@ -205,7 +244,7 @@ def convert():
             converter = LocalConverter()
             screenplay = converter.convert(
                 chapters=novel.chapters,
-                characters=analysis["characters"],
+                characters=characters,
                 title=title or novel.title,
                 author=author or novel.author,
             )
@@ -313,16 +352,28 @@ def analyze():
     except Exception as e:
         return jsonify({"error": f"AI 分析失败: {str(e)}"}), 500
 
+    # 兼容 AI 分析器返回的 dict 和本地分析器返回的 Character 对象
+    raw_chars = analysis.get("characters", [])
+    char_list = []
+    for c in raw_chars[:10]:
+        if isinstance(c, dict):
+            char_list.append({
+                "name": c.get("name", ""),
+                "importance": c.get("importance", "supporting"),
+            })
+        else:
+            char_list.append({
+                "name": c.name,
+                "importance": c.importance.value,
+            })
+
     result = {
         "success": True,
         "chapters": len(novel.chapters),
         "word_count": novel.total_word_count,
-        "characters": [
-            {"name": c.name, "importance": c.importance.value}
-            for c in analysis["characters"][:10]
-        ],
-        "locations": [loc["name"] for loc in analysis["locations"][:10]],
-        "timeline": analysis["timeline"][:10],
+        "characters": char_list,
+        "locations": [loc.get("name", loc) if isinstance(loc, dict) else loc for loc in analysis.get("locations", [])[:10]],
+        "timeline": analysis.get("timeline", [])[:10],
     }
 
     # 标记是否使用了 AI 分析

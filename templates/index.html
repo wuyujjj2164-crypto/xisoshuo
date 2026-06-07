@@ -116,6 +116,33 @@
             line-height: 1.7;
         }
 
+        .header .demo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 8px 18px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 100px;
+            color: var(--accent-light);
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .header .demo-link:hover {
+            background: var(--accent);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .header .demo-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
         /* Steps */
         .step {
             margin-bottom: 20px;
@@ -645,6 +672,12 @@
             <div class="badge">AI 驱动的剧本转换</div>
             <h1>小说转剧本工具</h1>
             <p>将小说文本自动转换为结构化剧本，支持角色提取、场景分割、YAML 输出</p>
+            <a href="https://pan.baidu.com/s/15fBwh2B8IXGR_tHdfIZgzA" target="_blank" class="demo-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                演示视频（提取码：kxde）
+            </a>
         </div>
 
         <!-- Step 1: Upload -->

@@ -151,21 +151,29 @@ class ScreenplayFormatter:
     将 Screenplay 对象格式化为标准的好莱坞剧本纯文本格式。
     适合直接打印或给导演/演员阅读。
 
-    格式示例：
-        1. 内景. 客厅 - 日
+    标准格式：
+        [场景编号]. [内景/外景]. [地点] - [时间]
 
-        阳光透过窗帘洒进客厅。
+        [动作描述]
 
-        李明
-        （低声）
-        这个项目必须在下周之前完成。
+                        [角色名]
+                  （语气/动作提示）
+            [对白内容，自动换行保持缩进]
 
-        王芳
-        （端着咖啡）
-        别太拼了，先喝杯咖啡吧。
+                        [角色名]
+            [对白内容]
 
-        李明接过咖啡，点了点头。
+        [动作描述]
     """
+
+    # 页面参数（以英文字符宽度为基准，中文字符占2宽）
+    PAGE_WIDTH = 60          # 页面总宽度
+    DIALOGUE_INDENT = 10     # 台词左缩进
+    CHARACTER_INDENT = 22    # 角色名左缩进
+    PAREN_INDENT = 26        # 括号提示左缩进
+    TRANSITION_INDENT = 40   # 转场提示左缩进
+    DIALOGUE_WIDTH = 36      # 台词每行最大宽度（字符数）
+    ACTION_WIDTH = 56        # 动作描述每行最大宽度
 
     def format(self, screenplay: Screenplay) -> str:
         """
@@ -181,20 +189,20 @@ class ScreenplayFormatter:
 
         # 标题页
         meta = screenplay.screenplay["metadata"]
-        lines.append("=" * 60)
+        lines.append("=" * self.PAGE_WIDTH)
         lines.append("")
-        lines.append(f"{meta.get('title', '未命名剧本').center(60)}")
+        lines.append(self._center(meta.get("title", "未命名剧本")))
         lines.append("")
         if meta.get("author"):
-            lines.append(f"作者: {meta['author']}".center(60))
-        lines.append("")
-        lines.append("=" * 60)
+            lines.append(self._center(f"作者: {meta['author']}"))
+            lines.append("")
+        lines.append("=" * self.PAGE_WIDTH)
         lines.append("")
 
         # 角色表
         characters = screenplay.screenplay.get("characters", [])
         if characters:
-            lines.append("【角色表】")
+            lines.append(self._center("【角色表】"))
             lines.append("")
             for char in characters:
                 imp = {"main": "主角", "supporting": "配角", "minor": "龙套"}.get(
@@ -208,7 +216,7 @@ class ScreenplayFormatter:
                     info += f" — {desc}"
                 lines.append(info)
             lines.append("")
-            lines.append("-" * 60)
+            lines.append("-" * self.PAGE_WIDTH)
             lines.append("")
 
         # 幕和场景
@@ -217,7 +225,7 @@ class ScreenplayFormatter:
             act_num = act.get("act_number", 0)
             act_title = act.get("title", f"第 {act_num} 幕")
             lines.append("")
-            lines.append(f"{'=' * 20}  {act_title}  {'=' * 20}")
+            lines.append(self._center(f"{'=' * 10}  {act_title}  {'=' * 10}"))
             lines.append("")
 
             for scene in act.get("scenes", []):
@@ -234,7 +242,8 @@ class ScreenplayFormatter:
                 # 场景描述
                 desc = scene.get("description", "")
                 if desc:
-                    lines.append(desc)
+                    for line in self._wrap(desc, self.ACTION_WIDTH):
+                        lines.append(line)
                     lines.append("")
 
                 # 场景元素
@@ -245,21 +254,32 @@ class ScreenplayFormatter:
                         continue
 
                     if etype == "action":
-                        lines.append(content)
+                        for line in self._wrap(content, self.ACTION_WIDTH):
+                            lines.append(line)
                         lines.append("")
 
                     elif etype == "dialogue":
-                        char = elem.get("character", "未知角色")
+                        char = self._format_character_name(
+                            elem.get("character", "未知角色")
+                        )
                         paren = elem.get("parenthetical", "")
-                        # 角色名保持原样（中文无大小写，英文大写）
-                        lines.append(char)
+                        # 角色名居中
+                        lines.append(self._indent(char, self.CHARACTER_INDENT))
                         if paren:
-                            lines.append(f"（{paren}）")
-                        lines.append(content)
+                            lines.append(
+                                self._indent(f"（{paren}）", self.PAREN_INDENT)
+                            )
+                        # 台词内容，自动换行保持缩进
+                        for line in self._wrap(
+                            content, self.DIALOGUE_WIDTH, self.DIALOGUE_INDENT
+                        ):
+                            lines.append(line)
                         lines.append("")
 
                     elif etype == "transition":
-                        lines.append(content)
+                        lines.append(
+                            self._indent(content, self.TRANSITION_INDENT)
+                        )
                         lines.append("")
 
                     elif etype == "sound":
@@ -274,12 +294,67 @@ class ScreenplayFormatter:
                 lines.append("")
 
         # 结尾
-        lines.append("=" * 60)
+        lines.append("=" * self.PAGE_WIDTH)
         lines.append("")
-        lines.append("【完】")
+        lines.append(self._center("【完】"))
         lines.append("")
 
         return "\n".join(lines)
+
+    def _indent(self, text: str, spaces: int) -> str:
+        """在文本前添加指定数量的空格"""
+        return " " * spaces + text
+
+    def _center(self, text: str) -> str:
+        """将文本居中"""
+        return text.center(self.PAGE_WIDTH)
+
+    def _format_character_name(self, name: str) -> str:
+        """
+        格式化角色名
+        - 纯英文名转全大写
+        - 中文名保持原样
+        - 混合名保持原样
+        """
+        # 如果名字只包含 ASCII 字母和空格，转大写
+        if all(c.isascii() and (c.isalpha() or c.isspace()) for c in name):
+            return name.upper()
+        return name
+
+    def _wrap(self, text: str, width: int, indent: int = 0) -> list[str]:
+        """
+        自动换行，保持缩进
+
+        Args:
+            text: 原始文本
+            width: 每行最大字符数
+            indent: 除第一行外，后续行的缩进空格数
+
+        Returns:
+            换行后的文本行列表
+        """
+        if not text:
+            return []
+
+        lines = []
+        current_line = ""
+        current_width = 0
+
+        for char in text:
+            char_w = 2 if ord(char) > 127 else 1  # 中文字符算2宽
+
+            if current_width + char_w > width and current_line:
+                lines.append(" " * indent + current_line if indent and lines else current_line)
+                current_line = char
+                current_width = char_w
+            else:
+                current_line += char
+                current_width += char_w
+
+        if current_line:
+            lines.append(" " * indent + current_line if indent and lines else current_line)
+
+        return lines if lines else [text]
 
     def _clean_description(self, desc: str) -> str:
         """清理角色描述，过滤掉可能是错误提取的小说原文片段"""
