@@ -45,34 +45,24 @@ def _is_safe_path(path: str) -> bool:
     return abs_path.startswith(abs_tmp + os.sep) or abs_path == abs_tmp
 
 
-def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = "", base_url: str = "", model: str = ""):
+def _resolve_ai_config(api_key: str = "", provider: str = "", base_url: str = "", model: str = ""):
     """
-    获取分析器实例
-    ai_mode=True 时尝试使用 AI 分析器
-    返回 (analyzer, error_message)
+    解析 AI 配置（复用于分析和转换）
+    返回 (api_key, provider, model, base_url)
     """
-    if not ai_mode:
-        return NovelAnalyzer(), None
-
-    # 优先使用前端传入的密钥，其次环境变量
     key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("MOONSHOT_API_KEY")
     if not key:
-        return NovelAnalyzer(), "未提供 API 密钥，已回退到本地规则分析"
+        raise ValueError("未提供 API 密钥")
 
-    # 确定 provider
     provider = (provider or "").lower()
     if not provider:
-        # 根据密钥前缀判断 provider
         if key.startswith("sk-ant-"):
             provider = "anthropic"
         else:
-            # 默认使用 openai 兼容格式（支持 OpenAI / DeepSeek / 通义千问 / Kimi）
             provider = "openai"
 
-    # 模型和 base_url 配置
     resolved_base_url = None
 
-    # 用户自定义 model 优先
     if model:
         resolved_model = model
     elif provider == "anthropic":
@@ -84,8 +74,26 @@ def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = "", 
         resolved_model = "gpt-4o"
 
     if provider != "kimi":
-        # openai 兼容格式：优先使用前端传入的 base_url，其次环境变量
         resolved_base_url = base_url or os.environ.get("OPENAI_BASE_URL")
+
+    return key, provider, resolved_model, resolved_base_url
+
+
+def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = "", base_url: str = "", model: str = ""):
+    """
+    获取分析器实例
+    ai_mode=True 时尝试使用 AI 分析器
+    返回 (analyzer, error_message)
+    """
+    if not ai_mode:
+        return NovelAnalyzer(), None
+
+    try:
+        key, provider, resolved_model, resolved_base_url = _resolve_ai_config(
+            api_key=api_key, provider=provider, base_url=base_url, model=model
+        )
+    except ValueError:
+        return NovelAnalyzer(), "未提供 API 密钥，已回退到本地规则分析"
 
     try:
         analyzer = AINovelAnalyzer(
@@ -105,34 +113,9 @@ def _get_script_converter(api_key: str = "", provider: str = "", base_url: str =
     """
     获取 AI 剧本转换器实例
     """
-    # 优先使用前端传入的密钥，其次环境变量
-    key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("MOONSHOT_API_KEY")
-    if not key:
-        raise ValueError("未提供 API 密钥")
-
-    # 确定 provider
-    provider = (provider or "").lower()
-    if not provider:
-        if key.startswith("sk-ant-"):
-            provider = "anthropic"
-        else:
-            provider = "openai"
-
-    # 模型和 base_url 配置
-    resolved_base_url = None
-
-    if model:
-        resolved_model = model
-    elif provider == "anthropic":
-        resolved_model = "claude-sonnet-4-6"
-    elif provider == "kimi":
-        resolved_model = "moonshot-v1-32k"
-        resolved_base_url = "https://api.moonshot.cn/v1"
-    else:
-        resolved_model = "gpt-4o"
-
-    if provider != "kimi":
-        resolved_base_url = base_url or os.environ.get("OPENAI_BASE_URL")
+    key, provider, resolved_model, resolved_base_url = _resolve_ai_config(
+        api_key=api_key, provider=provider, base_url=base_url, model=model
+    )
 
     return ScriptConverter(
         api_key=key,
