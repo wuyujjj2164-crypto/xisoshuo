@@ -89,25 +89,85 @@ acts:
 只输出 YAML 内容，不要添加解释或 markdown 代码块标记之外的任何内容。
 """
 
-BATCH_PROMPT = """你是一位资深编剧。请将以下小说章节转换为剧本场景。
-这是第 {batch_num}/{total_batches} 批章节。
+BATCH_PROMPT = """你是一位资深影视编剧，精通将小说改编为可直接拍摄的专业剧本。
+请将以下小说章节改编为剧本场景。这是第 {batch_num}/{total_batches} 批章节。
+
+## 改编原则（这是改编，不是简单分块）
+
+### 1. 场景分割
+- 地点变化 = 新场景
+- 时间变化 = 新场景
+- 同一地点内，如果事件/话题发生明显转折，也考虑新场景
+- 每个场景要有明确的戏剧目标（人物想做什么）
+
+### 2. 角色识别与对白处理
+- **识别说话人**：小说中的直接引语（带引号的内容）→ 转为 dialogue
+- 在引语附近找"XX说道/说/问/喊道"等提示，确定说话人姓名
+- 如果提示不明确，根据上下文逻辑推断谁在说话
+- **多人对话**：依次列出每个人的对白，不要混在一起
+
+### 3. 叙述转动作（核心改编能力）
+- 小说的叙述性文字要改编成**可拍摄的动作描述**，不是直接复制
+- 心理描写 → 用表情、动作、镜头语言来表现
+  - 错误："他很紧张"（不可拍摄）
+  - 正确："他攥紧了拳头，指节发白"（可拍摄）
+- 环境描写 → 精简为场景氛围，交代时间地点
+- 不要大段复制原文叙述，要提炼为视觉化的动作
+
+### 4. 场景元素类型
+- **action**: 动作/场景描写（第三人称，现在时，可拍摄的画面）
+- **dialogue**: 角色对白（必须有 character 字段）
+- **parenthetical**: 表演指示（语气、动作、情绪，附在对白下方括号中）
+- **transition**: 转场提示（如"切至"、"淡入"、"叠化"）
+
+### 5. 场景标题格式
+内景/外景. 地点 - 时间
+时间选项：黎明、晨、日、正午、下午、黄昏、晚、夜、深夜、连续
+
+## 角色参考（供识别说话人使用）
+
+{characters}
+
+## 章节内容
 
 {chapters_content}
 
-角色参考：{characters}
+## 输出格式
 
-请输出 YAML 格式的场景列表（只输出 acts 下的内容，不需要最外层的 screenplay 包装）：
+请输出 YAML 格式的场景列表（只输出 acts 下的内容）：
 
 ```yaml
 acts:
   - act_number: {act_number}
-    title: "..."
-    description: "..."
+    title: "幕标题（概括本幕核心冲突）"
+    description: "幕内容简述"
     scenes:
-      - scene_number: ...
-        heading: "..."
-        ...
+      - scene_number: 1
+        heading: "内景. 客厅 - 日"
+        location: "客厅"
+        time: "日"
+        int_ext: "内景"
+        description: "场景一句话概括"
+        mood: "氛围（如：紧张、温馨、压抑）"
+        characters_present: ["角色A", "角色B"]
+        elements:
+          - type: action
+            content: "可拍摄的动作描述，不要直接复制小说叙述"
+          - type: dialogue
+            character: "角色A"
+            content: "对白内容"
+            parenthetical: "低声/愤怒地/犹豫地"
+          - type: action
+            content: "角色A说完后的动作或反应"
+          - type: transition
+            content: "切至："
 ```
+
+## 关键提醒
+- 这是**改编**，不是简单分段。要理解故事后重新组织为剧本格式
+- 所有 content 必须是**现在时**（剧本用现在时书写）
+- 对白要保留角色语言风格，不要擅自改写原意
+- 每个场景必须有 heading，每个 dialogue 必须有 character
 """
 
 
@@ -394,6 +454,10 @@ class ScriptConverter:
         lines = []
         for ch in batch:
             lines.append(f"## {ch.title}")
-            lines.append(ch.content[:3000])  # 限制每章长度
+            # 每章限制 5000 字，给 LLM 更多上下文理解故事
+            content = ch.content[:5000]
+            lines.append(content)
+            if len(ch.content) > 5000:
+                lines.append("...（章节较长，以上为前 5000 字）")
             lines.append("")
         return "\n\n".join(lines)
