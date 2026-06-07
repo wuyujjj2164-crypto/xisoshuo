@@ -117,8 +117,8 @@ class AINovelAnalyzer:
             model: 使用的模型名称
             max_tokens: 单次请求最大输出 token 数
             temperature: 创造性程度 (0.0-1.0)
-            provider: API 提供商，可选 "anthropic" / "openai"
-            base_url: OpenAI 兼容 API 的基础 URL（如 DeepSeek、通义千问）
+            provider: API 提供商，可选 "anthropic" / "openai" / "kimi"
+            base_url: OpenAI 兼容 API 的基础 URL（如 DeepSeek、通义千问、Kimi）
         """
         self.provider = provider.lower()
         self.model = model
@@ -141,11 +141,13 @@ class AINovelAnalyzer:
                     "使用 Anthropic 需要先安装: pip install anthropic"
                 )
 
-        elif self.provider == "openai":
-            self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        elif self.provider in ("openai", "kimi"):
+            # Kimi 使用 OpenAI 兼容格式
+            env_var = "MOONSHOT_API_KEY" if self.provider == "kimi" else "OPENAI_API_KEY"
+            self.api_key = api_key or os.environ.get(env_var)
             if not self.api_key:
                 raise ValueError(
-                    "必须提供 API 密钥或通过 OPENAI_API_KEY 环境变量设置"
+                    f"必须提供 API 密钥或通过 {env_var} 环境变量设置"
                 )
             try:
                 import openai
@@ -158,7 +160,7 @@ class AINovelAnalyzer:
                     "使用 OpenAI 兼容 API 需要先安装: pip install openai"
                 )
         else:
-            raise ValueError(f"不支持的 provider: {provider}，可选: anthropic, openai")
+            raise ValueError(f"不支持的 provider: {provider}，可选: anthropic, openai, kimi")
 
     def analyze(self, novel: Novel) -> dict:
         """

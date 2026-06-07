@@ -7,11 +7,19 @@ anthropic:
   max_tokens: 4096      # 单次请求最大 token
   temperature: 0.3      # 创造性程度 (0.0-1.0)
 
-# OpenAI 兼容 API 配置（DeepSeek / 通义千问 / GPT 等）
+# OpenAI 兼容 API 配置（DeepSeek / 通义千问 / GPT / Kimi 等）
 openai:
   api_key: ""           # 留空则从环境变量 OPENAI_API_KEY 读取
-  base_url: ""          # API 基础地址，如：https://api.deepseek.com/v1
+  base_url: ""          # API 基础地址
   model: "gpt-4o"       # 使用的模型
+  max_tokens: 4096
+  temperature: 0.3
+
+# Kimi (Moonshot) API 配置
+kimi:
+  api_key: ""           # 留空则从环境变量 MOONSHOT_API_KEY 读取
+  base_url: "https://api.moonshot.cn/v1"
+  model: "moonshot-v1-32k"  # 可选: moonshot-v1-8k / moonshot-v1-32k / moonshot-v1-128k
   max_tokens: 4096
   temperature: 0.3
 

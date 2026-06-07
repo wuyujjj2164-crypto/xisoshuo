@@ -44,7 +44,7 @@ def _is_safe_path(path: str) -> bool:
     return abs_path.startswith(abs_tmp + os.sep) or abs_path == abs_tmp
 
 
-def _get_analyzer(ai_mode: bool = False, api_key: str = ""):
+def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = ""):
     """
     获取分析器实例
     ai_mode=True 时尝试使用 AI 分析器，失败则回退到本地
@@ -53,18 +53,40 @@ def _get_analyzer(ai_mode: bool = False, api_key: str = ""):
         return NovelAnalyzer()
 
     # 优先使用前端传入的密钥，其次环境变量
-    key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    key = api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("MOONSHOT_API_KEY")
     if not key:
         return NovelAnalyzer()  # 无密钥则回退本地
 
-    # 根据密钥前缀判断 provider
-    provider = "openai" if key.startswith("sk-") and not key.startswith("sk-ant-") else "anthropic"
+    # 确定 provider
+    provider = (provider or "").lower()
+    if not provider:
+        # 根据密钥前缀判断 provider
+        if key.startswith("sk-ant-"):
+            provider = "anthropic"
+        else:
+            # 默认使用 openai 兼容格式（支持 OpenAI / DeepSeek / 通义千问 / Kimi）
+            provider = "openai"
+
+    # 模型和 base_url 配置
+    model = "claude-sonnet-4-6"
+    base_url = None
+
+    if provider == "anthropic":
+        model = "claude-sonnet-4-6"
+    elif provider == "kimi":
+        model = "moonshot-v1-32k"
+        base_url = "https://api.moonshot.cn/v1"
+    else:
+        # openai 兼容格式，尝试从环境变量读取 base_url
+        model = "gpt-4o"
+        base_url = os.environ.get("OPENAI_BASE_URL")
 
     try:
         return AINovelAnalyzer(
             api_key=key,
-            model="claude-sonnet-4-6" if provider == "anthropic" else "gpt-4o",
+            model=model,
             provider=provider,
+            base_url=base_url,
         )
     except Exception:
         return NovelAnalyzer()  # 初始化失败则回退本地
@@ -107,7 +129,8 @@ def convert():
     # 步骤2: 分析
     ai_analyze = request.form.get("ai_analyze", "false").lower() == "true"
     api_key = request.form.get("api_key", "")
-    analyzer = _get_analyzer(ai_mode=ai_analyze, api_key=api_key)
+    provider = request.form.get("provider", "")
+    analyzer = _get_analyzer(ai_mode=ai_analyze, api_key=api_key, provider=provider)
     analysis = analyzer.analyze(novel)
 
     # 步骤3: 转换
@@ -190,7 +213,8 @@ def analyze():
 
     ai_mode = request.form.get("ai_analyze", "false").lower() == "true"
     api_key = request.form.get("api_key", "")
-    analyzer = _get_analyzer(ai_mode=ai_mode, api_key=api_key)
+    provider = request.form.get("provider", "")
+    analyzer = _get_analyzer(ai_mode=ai_mode, api_key=api_key, provider=provider)
     analysis = analyzer.analyze(novel)
 
     result = {

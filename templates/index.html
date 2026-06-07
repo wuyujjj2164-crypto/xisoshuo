@@ -709,8 +709,22 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
+                        <label>API 提供商</label>
+                        <select id="provider">
+                            <option value="anthropic">Anthropic (Claude)</option>
+                            <option value="kimi">Kimi (Moonshot)</option>
+                            <option value="openai">OpenAI / DeepSeek / 通义千问</option>
+                        </select>
+                        <div class="mode-note">
+                            <span style="color: var(--accent-light);">&#9432;</span>
+                            选择你的 API 密钥对应的提供商
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
                         <label>API 密钥 <span style="color:var(--text-muted);font-weight:400;">(AI 模式需要)</span></label>
-                        <input type="password" id="apiKey" placeholder="输入 Anthropic / OpenAI / DeepSeek API 密钥">
+                        <input type="password" id="apiKey" placeholder="输入 API 密钥">
                         <div class="mode-note">
                             <span style="color: var(--accent-light);">&#9432;</span>
                             仅在本次请求中使用，不会保存。留空则使用本地规则。
@@ -855,7 +869,10 @@
             formData.append('file', currentFile);
             formData.append('ai_analyze', document.getElementById('analyzeMode').value === 'ai');
             const apiKey = document.getElementById('apiKey').value;
-            if (apiKey) formData.append('api_key', apiKey);
+            if (apiKey) {
+                formData.append('api_key', apiKey);
+                formData.append('provider', document.getElementById('provider').value);
+            }
 
             try {
                 const res = await fetch('/api/analyze', { method: 'POST', body: formData });
@@ -933,7 +950,10 @@
             formData.append('mode', mode);
             formData.append('ai_analyze', document.getElementById('analyzeMode').value === 'ai');
             const apiKey = document.getElementById('apiKey').value;
-            if (apiKey) formData.append('api_key', apiKey);
+            if (apiKey) {
+                formData.append('api_key', apiKey);
+                formData.append('provider', document.getElementById('provider').value);
+            }
 
             try {
                 const res = await fetch('/api/convert', { method: 'POST', body: formData });
