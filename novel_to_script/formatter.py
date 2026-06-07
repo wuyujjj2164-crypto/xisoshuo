@@ -142,3 +142,139 @@ class YAMLFormatter:
                         return False, f"对白缺少 'character': 幕{i+1}场{j+1}"
 
         return True, "验证通过"
+
+
+class ScreenplayFormatter:
+    """
+    标准剧本格式输出器
+
+    将 Screenplay 对象格式化为标准的好莱坞剧本纯文本格式。
+    适合直接打印或给导演/演员阅读。
+
+    格式示例：
+        1. 内景. 客厅 - 日
+
+        阳光透过窗帘洒进客厅。
+
+        李明
+        （低声）
+        这个项目必须在下周之前完成。
+
+        王芳
+        （端着咖啡）
+        别太拼了，先喝杯咖啡吧。
+
+        李明接过咖啡，点了点头。
+    """
+
+    def format(self, screenplay: Screenplay) -> str:
+        """
+        将剧本对象格式化为标准剧本文本
+
+        Args:
+            screenplay: Screenplay 对象
+
+        Returns:
+            纯文本剧本字符串
+        """
+        lines: list[str] = []
+
+        # 标题页
+        meta = screenplay.screenplay["metadata"]
+        lines.append("=" * 60)
+        lines.append("")
+        lines.append(f"{meta.get('title', '未命名剧本').center(60)}")
+        lines.append("")
+        if meta.get("author"):
+            lines.append(f"作者: {meta['author']}".center(60))
+        lines.append("")
+        lines.append("=" * 60)
+        lines.append("")
+
+        # 角色表
+        characters = screenplay.screenplay.get("characters", [])
+        if characters:
+            lines.append("【角色表】")
+            lines.append("")
+            for char in characters:
+                imp = {"main": "主角", "supporting": "配角", "minor": "龙套"}.get(
+                    char.get("importance", ""), ""
+                )
+                desc = char.get("description", "")
+                info = f"  {char['name']}"
+                if imp:
+                    info += f" [{imp}]"
+                if desc:
+                    info += f" — {desc}"
+                lines.append(info)
+            lines.append("")
+            lines.append("-" * 60)
+            lines.append("")
+
+        # 幕和场景
+        scene_global = 1
+        for act in screenplay.screenplay.get("acts", []):
+            act_num = act.get("act_number", 0)
+            act_title = act.get("title", f"第 {act_num} 幕")
+            lines.append("")
+            lines.append(f"{'=' * 20}  {act_title}  {'=' * 20}")
+            lines.append("")
+
+            for scene in act.get("scenes", []):
+                # 场景标题行
+                heading = scene.get("heading", "")
+                if not heading:
+                    loc = scene.get("location", "未知地点")
+                    time = scene.get("time", "日")
+                    int_ext = scene.get("int_ext", "内景")
+                    heading = f"{int_ext}. {loc} - {time}"
+                lines.append(f"{scene_global}. {heading}")
+                lines.append("")
+
+                # 场景描述
+                desc = scene.get("description", "")
+                if desc:
+                    lines.append(desc)
+                    lines.append("")
+
+                # 场景元素
+                for elem in scene.get("elements", []):
+                    etype = elem.get("type", "action")
+                    content = elem.get("content", "")
+
+                    if etype == "action":
+                        lines.append(content)
+                        lines.append("")
+
+                    elif etype == "dialogue":
+                        char = elem.get("character", "未知角色")
+                        paren = elem.get("parenthetical", "")
+                        # 角色名全大写
+                        lines.append(char.upper())
+                        if paren:
+                            lines.append(f"（{paren}）")
+                        lines.append(content)
+                        lines.append("")
+
+                    elif etype == "transition":
+                        lines.append(content)
+                        lines.append("")
+
+                    elif etype == "sound":
+                        lines.append(f"【音效】{content}")
+                        lines.append("")
+
+                    elif etype == "note":
+                        lines.append(f"【注】{content}")
+                        lines.append("")
+
+                scene_global += 1
+                lines.append("")
+
+        # 结尾
+        lines.append("=" * 60)
+        lines.append("")
+        lines.append("【完】")
+        lines.append("")
+
+        return "\n".join(lines)
