@@ -76,7 +76,7 @@ def _get_analyzer(ai_mode: bool = False, api_key: str = "", provider: str = ""):
         model = "claude-sonnet-4-6"
     elif provider == "kimi":
         model = "moonshot-v1-32k"
-        base_url = "https://api.kimi.com/coding/v1"
+        base_url = "https://api.moonshot.cn/v1"
     else:
         # openai 兼容格式，尝试从环境变量读取 base_url
         model = "gpt-4o"
@@ -135,7 +135,11 @@ def convert():
     api_key = request.form.get("api_key", "")
     provider = request.form.get("provider", "")
     analyzer, ai_error = _get_analyzer(ai_mode=ai_analyze, api_key=api_key, provider=provider)
-    analysis = analyzer.analyze(novel)
+
+    try:
+        analysis = analyzer.analyze(novel)
+    except Exception as e:
+        return jsonify({"error": f"AI 分析失败: {str(e)}"}), 500
 
     # 如果用户要求 AI 分析但失败了，显示警告
     if ai_analyze and ai_error and not isinstance(analyzer, AINovelAnalyzer):
@@ -231,7 +235,11 @@ def analyze():
     api_key = request.form.get("api_key", "")
     provider = request.form.get("provider", "")
     analyzer, ai_error = _get_analyzer(ai_mode=ai_mode, api_key=api_key, provider=provider)
-    analysis = analyzer.analyze(novel)
+
+    try:
+        analysis = analyzer.analyze(novel)
+    except Exception as e:
+        return jsonify({"error": f"AI 分析失败: {str(e)}"}), 500
 
     result = {
         "success": True,
