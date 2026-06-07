@@ -57,6 +57,10 @@ examples/demo_output.yaml
 examples/sample_output.yaml
 test_output.yaml
 
+# Runtime directories
+tmp/
+.claude/
+
 # Planning files (not for repo)
 task_plan.md
 findings.md

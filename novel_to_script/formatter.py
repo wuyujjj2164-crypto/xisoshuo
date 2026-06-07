@@ -200,7 +200,7 @@ class ScreenplayFormatter:
                 imp = {"main": "主角", "supporting": "配角", "minor": "龙套"}.get(
                     char.get("importance", ""), ""
                 )
-                desc = char.get("description", "")
+                desc = self._clean_description(char.get("description", ""))
                 info = f"  {char['name']}"
                 if imp:
                     info += f" [{imp}]"
@@ -240,7 +240,9 @@ class ScreenplayFormatter:
                 # 场景元素
                 for elem in scene.get("elements", []):
                     etype = elem.get("type", "action")
-                    content = elem.get("content", "")
+                    content = elem.get("content", "").strip()
+                    if not content:
+                        continue
 
                     if etype == "action":
                         lines.append(content)
@@ -249,8 +251,8 @@ class ScreenplayFormatter:
                     elif etype == "dialogue":
                         char = elem.get("character", "未知角色")
                         paren = elem.get("parenthetical", "")
-                        # 角色名全大写
-                        lines.append(char.upper())
+                        # 角色名保持原样（中文无大小写，英文大写）
+                        lines.append(char)
                         if paren:
                             lines.append(f"（{paren}）")
                         lines.append(content)
@@ -278,3 +280,20 @@ class ScreenplayFormatter:
         lines.append("")
 
         return "\n".join(lines)
+
+    def _clean_description(self, desc: str) -> str:
+        """清理角色描述，过滤掉可能是错误提取的小说原文片段"""
+        if not desc:
+            return ""
+        desc = desc.strip()
+        # 如果描述包含引号或过长，可能是小说原文而非描述
+        # 使用 Unicode 转义确保跨编码兼容
+        # 使用 Unicode 码点检测，避免编码问题
+        quote_ords = {0x22, 0x201c, 0x201d, 0x300c, 0x300d, 0x300e, 0x300f}
+        has_quote = any(ord(c) in quote_ords for c in desc)
+        if len(desc) > 30 and has_quote:
+            return ""
+        # 截断过长的描述
+        if len(desc) > 50:
+            desc = desc[:50] + "..."
+        return desc
